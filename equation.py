@@ -1,26 +1,29 @@
+import real
+
 class Equation:
     """
     A conic equation general form representation.
+    
     Attributes:
-        coeff(dict): all equation coefficients 
+        coeff (dict of float): all equation coefficients
     """
 
     def __init__(self, a=1, b=1, c=1, d=0, e=0, f=0):
         self.coeff = dict()
-        self.coeff['a'] = float(a)
-        self.coeff['b'] = float(b)
-        self.coeff['c'] = float(c)
-        self.coeff['d'] = float(d)
-        self.coeff['e'] = float(e)
-        self.coeff['f'] = float(f)
+        self.coeff['a'] = real.parse(a)
+        self.coeff['b'] = real.parse(b)
+        self.coeff['c'] = real.parse(c)
+        self.coeff['d'] = real.parse(d)
+        self.coeff['e'] = real.parse(e)
+        self.coeff['f'] = real.parse(f)
 
 
     @classmethod
     def get(cls):
-        a = float(input('a: '))
-        b = float(input('b: '))
-        c = float(input('c: '))
-        d = float(input('d: '))
-        e = float(input('e: '))
-        f = float(input('f: '))
+        a = real.get('a: ')
+        b = real.get('b: ')
+        c = real.get('c: ')
+        d = real.get('d: ')
+        e = real.get('e: ')
+        f = real.get('f: ')
         return Equation(a, b, c, d, e, f)
