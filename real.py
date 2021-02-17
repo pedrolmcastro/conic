@@ -2,49 +2,50 @@ import math
 
 def get(msg=''):
     """
-    Read a finite real number from input. If the input is not a number or not finite, an error message
+    Reads a finite real number from input. If the input is not a number or is not finite, a message
     will be printed and another input will be required.
 
     Args:
         msg (str, optional): input message display.
     
     Returns:
-        float: a valid finite number.
+        float: finite number.
     """
-
     while True:
         inp = str(input(msg)).strip().replace(',', '.')
         try:
             inp = float(inp)
         except ValueError:
-            print(f'[ERROR] \'{inp}\' is not a number! Try Again!')
+            print(f'Cannot convert string to real: \'{inp}\'. Try Again!')
         else:
             if math.isfinite(inp):
                 return inp
             else:
-                print(f'[ERROR] \'{inp}\' is not finite! Try again!')
+                print(f'Input must be a finite number, not \'{inp}\'. Try again!')
 
 
-def parse(arg):
+def parse(val):
     """
-    Converts the given argument to a finite real number. If the argument is not a number or not finite, an
-    error message will be printed and 0 will be returned.
+    Converts the given value to a finite real number.
 
     Args:
-        arg (): Argument passed to be converted.
+        val (int/float/str): value to be converted.
     
     Returns:
-        float: the converted finite number or 0.0 if the argument is not valid or infinite.
+        float: converted finite number.
+    
+    Raises:
+        ValueError: if the string cannot be converted or the argument is not finite.
+        TypeError: if the argument is not an int, float or str.
     """
-
     try:
-        arg = float(arg)
+        val = float(val)
     except ValueError:
-        print(f'[ERROR] \'{arg}\' is not a number! Using 0 instead!')
-        return 0.0
+        raise ValueError(f'could not convert string to real: \'{val}\'')
+    except TypeError:
+        raise TypeError(f'real.parse() argument must be a string or a number, not {type(val)}')
     else:
-        if math.isfinite(arg):
-            return arg
+        if math.isfinite(val):
+            return val
         else:
-            print(f'[ERROR] \'{arg}\' is not finite! Using 0 instead!')
-            return 0.0
+            raise ValueError(f'real.parse() argument must be a valid finite number, not \'{val}\'')
