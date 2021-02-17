@@ -1,11 +1,10 @@
 from equation import Equation
 
-test = Equation('inf', '-inf', 'test', f='nan')
-for i in test.coeff.values():
-    print(i, end=' ')
-print()
-
 test = Equation.get()
-for i in test.coeff.values():
+print(test)
+
+test.coeff['j'] = 32
+for i in test.coeff.keys():
     print(i, end=' ')
 print()
+print(test)

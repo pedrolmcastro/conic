@@ -5,7 +5,7 @@ class Equation:
     A conic equation general form representation.
     
     Attributes:
-        coeff (dict of float): all equation coefficients
+        coeff (dict of float): all equation coefficients.
     """
 
     def __init__(self, a=1, b=1, c=1, d=0, e=0, f=0):
@@ -26,4 +26,24 @@ class Equation:
         d = real.get('d: ')
         e = real.get('e: ')
         f = real.get('f: ')
-        return Equation(a, b, c, d, e, f)
+        return cls(a, b, c, d, e, f)
+    
+
+    def __str__(self):
+        var = { 'a' : 'x²',
+                'b' : 'xy',
+                'c' : 'y²',
+                'd' : 'x',
+                'e' : 'y',
+                'f' : '' }
+        
+        string = ''
+        for coeff, val in self.coeff.items():
+            if coeff in var.keys():
+                if val < 0:
+                    string += f'- {abs(val)}{var[coeff]} '
+                elif val > 0:
+                    string += f'+ {abs(val)}{var[coeff]} '
+                # coeff with val == 0 is not printed
+        
+        return string
