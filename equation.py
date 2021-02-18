@@ -7,7 +7,7 @@ class Equation:
     Attributes:
         coeffs (dict of float): all equation coefficients.
     """
-    def __init__(self, a=1, b=1, c=1, d=0, e=0, f=0):
+    def __init__(self, a=0, b=0, c=0, d=0, e=0, f=0):
         self.coeffs = dict()
         self.coeffs['a'] = real.parse(a)
         self.coeffs['b'] = real.parse(b)
@@ -40,12 +40,14 @@ class Equation:
             'f': '',
         }
 
-        string = ''
+        string = 'g(x, y) ='
         for coeff, val in self.coeffs.items():
             if coeff in coeffToVar.keys():
                 if val < 0:
-                    string += f'- {-val}{coeffToVar[coeff]} '
+                    string += f' - {-val}{coeffToVar[coeff]}'
                 elif val > 0:
-                    string += f'+ {val}{coeffToVar[coeff]} '
-                # coeff with val == 0 is not printed
+                    string += f' + {val}{coeffToVar[coeff]}'
+                #val == 0 is not printed
+        if string == 'g(x, y) =': #all val == 0
+            string += ' 0'
         return string

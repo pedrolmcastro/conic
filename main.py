@@ -1,6 +1,8 @@
-from point import Point
+from conic import Conic
 
-test = Point.get()
+cnc = Conic.get()
+while not cnc.isvalid():
+    print(f'\'a\', \'b\' and \'c\' cannot all equal to 0. Try again!')
+    cnc.getNewEquation()
 
-print(test)
-print(repr(test))
+print(cnc.eqt)

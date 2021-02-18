@@ -16,7 +16,7 @@ def get(msg=''):
         try:
             inp = float(inp)
         except ValueError:
-            print(f'Cannot convert string to real: \'{inp}\'. Try Again!')
+            print(f'Cannot convert string to real: \'{inp}\'. Try again!')
         else:
             if math.isfinite(inp):
                 return inp
