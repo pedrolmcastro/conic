@@ -1,4 +1,6 @@
-from equation import Equation
+from point import Point
 
-test = Equation.get()
+test = Point.get()
+
 print(test)
+print(repr(test))
