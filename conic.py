@@ -25,6 +25,14 @@ class Conic:
         e = real.get('e: ')
         f = real.get('f: ')
         return cls(a, b, c, d, e, f)
+
+    def __repr__(self):
+        return (f'{self.__class__.__module__}.{self.__class__.__qualname__}' +
+                f'({self.equation.coeffs["a"]}, {self.equation.coeffs["b"]}, {self.equation.coeffs["c"]}, ' +
+                f'{self.equation.coeffs["d"]}, {self.equation.coeffs["e"]}, {self.equation.coeffs["f"]})')
+    
+    def __str__(self):
+        return self.name
     
     def isvalid(self):
         if self.equation.coeffs.keys() == {'a', 'b', 'c', 'd', 'e', 'f'}:

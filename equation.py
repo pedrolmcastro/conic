@@ -39,15 +39,16 @@ class Equation:
             'e': 'y',
             'f': '',
         }
+        if not self.coeffs.keys() <= coeffToVar.keys():
+            raise KeyError(f'Equation.coeffs {self.coeffs.keys()} must be in coeffToVar {coeffToVar.keys()}')
 
         string = 'g(x, y) ='
         for coeff, val in self.coeffs.items():
-            if coeff in coeffToVar.keys():
-                if val < 0:
-                    string += f' - {-val}{coeffToVar[coeff]}'
-                elif val > 0:
-                    string += f' + {val}{coeffToVar[coeff]}'
-                #val == 0 is not printed
-        if string == 'g(x, y) =': #all val == 0
+            if val < 0:
+                string += f' - {-val}{coeffToVar[coeff]}'
+            elif val > 0:
+                string += f' + {val}{coeffToVar[coeff]}'
+            #if val == 0 is not printed
+        if string == 'g(x, y) =': #empty equation
             string += ' 0'
         return string

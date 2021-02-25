@@ -16,12 +16,12 @@ def get(msg=''):
         try:
             inp = float(inp)
         except ValueError:
-            print(f'Cannot convert string to real: \'{inp}\'. Try again!')
+            print(f'cannot convert string to real: \'{inp}\'. Try again!')
         else:
             if math.isfinite(inp):
                 return inp
             else:
-                print(f'Input must be a finite number, not \'{inp}\'. Try again!')
+                print(f'input must be a finite number, not \'{inp}\'. Try again!')
 
 
 def parse(val):
@@ -48,4 +48,4 @@ def parse(val):
         if math.isfinite(val):
             return val
         else:
-            raise ValueError(f'real.parse() argument must be a valid finite number, not \'{val}\'')
+            raise ValueError(f'real.parse() argument must be a finite number, not \'{val}\'')
