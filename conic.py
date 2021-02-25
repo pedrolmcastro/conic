@@ -1,4 +1,5 @@
 import math
+import copy
 
 import real
 from point import Point
@@ -9,15 +10,15 @@ class Conic:
     A conic representation.
     
     Attributes:
-        equation (Equation): general form equation.
-        center (Point/inf/None/str): number of centers the conic has and its coordinates if unique.
-        name (str): one of ['unknown', 'nothing', 'point', 'intersecting lines', 'parallel lines',
-                            'coincident lines', 'circle', 'ellipse', 'hyperbola', 'parabola'].
+        _eqt (Equation): general form equation.
+        _ctr (Point/inf/None/str): number of centers the conic has and its coordinates if unique.
+        _name (str): one of ['unknown', 'nothing', 'point', 'intersecting lines', 'parallel lines',
+                             'coincident lines', 'circle', 'ellipse', 'hyperbola', 'parabola'].
     """
     def __init__(self, a, b, c, d, e, f):
-        self.equation = Equation(a, b, c, d, e, f)
-        self.center = 'unknown'
-        self.name = 'unknown'
+        self._eqt = Equation(a, b, c, d, e, f)
+        self._ctr = 'unknown'
+        self._name = 'unknown'
 
     @classmethod
     def get(cls):
@@ -31,69 +32,79 @@ class Conic:
 
     def __repr__(self):
         return (f'{self.__class__.__module__}.{self.__class__.__qualname__}' +
-                f'({self.equation.coeffs["a"]}, {self.equation.coeffs["b"]}, {self.equation.coeffs["c"]}, ' +
-                f'{self.equation.coeffs["d"]}, {self.equation.coeffs["e"]}, {self.equation.coeffs["f"]})')
-    
+                f'({self._eqt.coeffs["a"]}, {self._eqt.coeffs["b"]}, {self._eqt.coeffs["c"]}, ' +
+                f'{self._eqt.coeffs["d"]}, {self._eqt.coeffs["e"]}, {self._eqt.coeffs["f"]})')
+
     def __str__(self):
-        return self.name
-    
-    def isvalid(self):
-        if self.equation.coeffs.keys() == {'a', 'b', 'c', 'd', 'e', 'f'}:
-            if self.equation.coeffs['a'] != 0 or self.equation.coeffs['b'] != 0 or self.equation.coeffs['c'] != 0:
-                return True
-        return False
+        return self._name
+
+    @property
+    def equation(self):
+        return copy.deepcopy(self._eqt)
+
+    @property
+    def center(self):
+        return copy.deepcopy(self._ctr)
+
+    @property
+    def name(self):
+        return self._name
 
     @property
     def det(self):
-        if not self.isvalid():
-            raise ValueError(f'the conic equation {self.equation} is invalid')
-        return self.equation.coeffs['a']*self.equation.coeffs['c'] - self.equation.coeffs['b']**2/4 #a*c - b²/4
+        return self._eqt.coeffs['a']*self._eqt.coeffs['c'] - self._eqt.coeffs['b']**2/4 #a*c - b²/4
 
-    def __isDependentSystem(self):
-        if (self.equation.coeffs['a'] != 0 and
-           math.isclose(self.equation.coeffs['e'], (self.equation.coeffs['b']*self.equation.coeffs['d']) / (2*self.equation.coeffs['a']))):
-            return True
-        elif (self.equation.coeffs['c'] != 0 and
-             math.isclose(self.equation.coeffs['d'], (self.equation.coeffs['b']*self.equation.coeffs['e']) / (2*self.equation.coeffs['c']))):
+    def isvalid(self):
+        if self._eqt.coeffs['a'] != 0 or self._eqt.coeffs['b'] != 0 or self._eqt.coeffs['c'] != 0:
             return True
         else:
             return False
 
-    def findCenter(self):
-        if not self.isvalid():
-            raise ValueError(f'the conic equation {self.equation} is invalid')
+    def _isDependentSystem(self):
+        if (self._eqt.coeffs['a'] != 0 and
+           math.isclose(self._eqt.coeffs['e'], (self._eqt.coeffs['b']*self._eqt.coeffs['d']) / (2*self._eqt.coeffs['a']))): #e = bd/2a
+            return True
+        elif (self._eqt.coeffs['c'] != 0 and
+             math.isclose(self._eqt.coeffs['d'], (self._eqt.coeffs['b']*self._eqt.coeffs['e']) / (2*self._eqt.coeffs['c']))): #d = be/2c
+            return True
+        else:
+            return False
+
+    def _findCenter(self):
         #ah + bk/2 + d/2 = 0
         #bh/2 + ck + e/2 = 0
-        if self.equation.coeffs['d'] == 0 and self.equation.coeffs['e'] == 0:
-            self.center = Point(0, 0)
         if self.det != 0: #independent system
-            if self.equation.coeffs['a'] == 0:
-                k = - self.equation.coeffs['d'] / self.equation.coeffs['b'] #k = -d/b
-                h = - (2*self.equation.coeffs['c']*k + self.equation.coeffs['e']) / self.equation.coeffs['b'] #h = -2ck/b - e/b
+            if self._eqt.coeffs['a'] == 0:
+                k = - self._eqt.coeffs['d'] / self._eqt.coeffs['b'] #k = -d/b
+                h = - (2*self._eqt.coeffs['c']*k + self._eqt.coeffs['e']) / self._eqt.coeffs['b'] #h = -(2ck + e) / b
             else:
-                k = (self.equation.coeffs['b']*self.equation.coeffs['d'] - 2*self.equation.coeffs['a']*self.equation.coeffs['e']) / (4*self.det) #k = (b*d - 2*a*e) / (4*det)
-                h = - (self.equation.coeffs['b']*k + self.equation.coeffs['d']) / (2*self.equation.coeffs['a']) #h = -(bk + d) / 2a
-            self.center = Point(h, k)
-        elif self.__isDependentSystem():
-            self.center = math.inf
+                k = (self._eqt.coeffs['b']*self._eqt.coeffs['d'] - 2*self._eqt.coeffs['a']*self._eqt.coeffs['e']) / (4*self.det) #k = (b*d - 2*a*e) / (4*det)
+                h = - (self._eqt.coeffs['b']*k + self._eqt.coeffs['d']) / (2*self._eqt.coeffs['a']) #h = -(bk + d) / 2a
+            self._ctr = Point(h, k)
+        elif self._isDependentSystem():
+            self._ctr = math.inf
         else: #inconsistent system
-            self.center = None
+            self._ctr = None
 
-    def translate(self):
-        if not self.isvalid():
-            raise ValueError(f'the conic equation {self.equation} is invalid')
-        self.findCenter()
-        if isinstance(self.center, Point):
-            self.equation.coeffs['f'] += (self.equation.coeffs['d']*self.center.coords['x'] + self.equation.coeffs['e']*self.center.coords['y']) / 2 #f = f + dh/2 + ek/2
-            self.equation.coeffs['d'] = 0
-            self.equation.coeffs['e'] = 0
-        elif self.center == math.inf:
-            if self.equation.coeffs['a'] != 0:
+    def _translate(self):
+        if isinstance(self._ctr, Point):
+            self._eqt.coeffs['f'] += (self._eqt.coeffs['d']*self._ctr.coords['x'] + self._eqt.coeffs['e']*self._ctr.coords['y']) / 2 #f = f + dh/2 + ek/2
+            self._eqt.coeffs['d'] = 0
+            self._eqt.coeffs['e'] = 0
+        elif self._ctr == math.inf:
+            if self._eqt.coeffs['a'] != 0:
                 k = 0
-                h = - self.equation.coeffs['d'] / (2*self.equation.coeffs['a']) #h = -d/2a
+                h = - self._eqt.coeffs['d'] / (2*self._eqt.coeffs['a']) #h = -d/2a
             else: #c != 0
                 h = 0
-                k = - self.equation.coeffs['e'] / (2*self.equation.coeffs['c']) #k = -e/2c
-            self.equation.coeffs['f'] += (self.equation.coeffs['d']*h + self.equation.coeffs['e']*k) / 2 #f = f + dh/2 + ek/2
-            self.equation.coeffs['d'] = 0
-            self.equation.coeffs['e'] = 0
+                k = - self._eqt.coeffs['e'] / (2*self._eqt.coeffs['c']) #k = -e/2c
+            self._eqt.coeffs['f'] += (self._eqt.coeffs['d']*h + self._eqt.coeffs['e']*k) / 2 #f = f + dh/2 + ek/2
+            self._eqt.coeffs['d'] = 0
+            self._eqt.coeffs['e'] = 0
+
+    def identify(self):
+        if not self.isvalid():
+            raise ValueError(f'the conic equation {self._eqt} is invalid')
+        self._findCenter()
+        if isinstance(self._ctr, Point) or self._ctr == math.inf:
+            self._translate()

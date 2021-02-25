@@ -39,8 +39,8 @@ class Equation:
             'e': 'y',
             'f': '',
         }
-        if not self.coeffs.keys() <= coeffToVar.keys():
-            raise KeyError(f'Equation.coeffs {self.coeffs.keys()} must be in coeffToVar {coeffToVar.keys()}')
+        if self.coeffs.keys() != coeffToVar.keys():
+            raise KeyError(f'Equation.coeffs {self.coeffs.keys()} must be equal to coeffToVar {coeffToVar.keys()}')
 
         string = 'g(x, y) ='
         for coeff, val in self.coeffs.items():

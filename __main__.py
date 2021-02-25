@@ -1,9 +1,9 @@
 from conic import Conic
 
+#cnc = Conic(0, 0, 1, 0, 0, 2)
+#cnc = Conic(1, 0, 0, 0, -1, 0)
 cnc = Conic(1, 0, 1, -2, -2, -2)
 
-cnc.findCenter()
+cnc.identify()
 print(cnc.center)
-
-cnc.translate()
 print(cnc.equation)
