@@ -7,7 +7,7 @@ class Equation:
     Attributes:
         coeffs (dict of float): all equation coefficients.
     """
-    def __init__(self, a=0, b=0, c=0, d=0, e=0, f=0):
+    def __init__(self, a, b, c, d, e, f):
         self.coeffs = dict()
         self.coeffs['a'] = real.parse(a)
         self.coeffs['b'] = real.parse(b)
