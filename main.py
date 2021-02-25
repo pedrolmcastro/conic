@@ -1,9 +1,9 @@
 from conic import Conic
 
-cnc = Conic(1, 2, 3, 4, 5, 6)
+cnc = Conic(1, 0, 1, -2, -2, -2)
 
-print(repr(cnc))
-print(str(cnc))
+cnc.findCenter()
+print(cnc.center)
 
-#cnc.equation.coeffs['g'] = 7
+cnc.translate()
 print(cnc.equation)
