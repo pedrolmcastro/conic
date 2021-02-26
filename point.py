@@ -13,7 +13,7 @@ class Point:
         self.coords['y'] = real.parse(y)
 
     @classmethod
-    def get(cls):
+    def frominput(cls):
         x = real.get('x: ')
         y = real.get('y: ')
         return cls(x, y)

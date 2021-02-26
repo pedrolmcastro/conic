@@ -21,13 +21,25 @@ class Conic:
         self._name = 'unknown'
 
     @classmethod
-    def get(cls):
+    def frominput(cls):
         a = real.get('a: ')
         b = real.get('b: ')
         c = real.get('c: ')
         d = real.get('d: ')
         e = real.get('e: ')
         f = real.get('f: ')
+        return cls(a, b, c, d, e, f)
+
+    @classmethod
+    def fromequation(cls, eqt):
+        if not isinstance(eqt, Equation):
+            raise TypeError(f'equation must be of class Equation, not {type(eqt)}')
+        a = eqt.coeffs['a']
+        b = eqt.coeffs['b']
+        c = eqt.coeffs['c']
+        d = eqt.coeffs['d']
+        e = eqt.coeffs['e']
+        f = eqt.coeffs['f']
         return cls(a, b, c, d, e, f)
 
     def __repr__(self):

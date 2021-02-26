@@ -17,7 +17,7 @@ class Equation:
         self.coeffs['f'] = real.parse(f)
 
     @classmethod
-    def get(cls):
+    def frominput(cls):
         a = real.get('a: ')
         b = real.get('b: ')
         c = real.get('c: ')
