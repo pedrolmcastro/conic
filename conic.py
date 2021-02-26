@@ -147,6 +147,43 @@ class Conic:
         self._eqt.coeffs['c'] = a + c - self._eqt.coeffs['a'] #c' = a + c - a'
         self._eqt.coeffs['b'] = 0
 
+    def _findName(self):
+        if isinstance(self._ctr, Point):
+            #nothing, point, circle, ellipse, hyperbola or intersecting lines
+            if self._eqt.coeffs['f'] == 0:
+                if self._eqt.coeffs['a'] * self._eqt.coeffs['c'] < 0:
+                    self._name = 'intersecting lines'
+                else: #self._eqt.coeffs['a'] * self._eqt.coeffs['c'] > 0
+                    self._name = 'point'
+            else:
+                A = - self._eqt.coeffs['a'] / self._eqt.coeffs['f']
+                C = - self._eqt.coeffs['c'] / self._eqt.coeffs['f']
+                if A * C < 0:
+                    self._name = 'hyperbola'
+                elif A < 0 and C < 0:
+                    self._name = 'nothing'
+                else:
+                    if A == C:
+                        self._name = 'circle'
+                    else:
+                        self._name = 'ellipse'
+        elif self._ctr == math.inf:
+            #nothing, parallel lines or coincident lines
+            if self._eqt.coeffs['a']*self._eqt.coeffs['f'] < 0 or self._eqt.coeffs['c']*self._eqt.coeffs['f'] < 0:
+                self._name = 'parallel lines'
+            elif self._eqt.coeffs['f'] == 0:
+                self._name = 'coincident lines'
+            else: #self._eqt.coeffs['a']*self._eqt.coeffs['f'] > 0 or self._eqt.coeffs['c']*self._eqt.coeffs['f'] > 0
+                self._name = 'nothing'
+        elif self._ctr == None:
+            #nothing or parabola
+            if self._eqt.coeffs['a'] != 0 and self._eqt.coeffs['e'] != 0:
+                self._name = 'parabola'
+            elif self._eqt.coeffs['c'] != 0 and self._eqt.coeffs['d'] != 0:
+                self._name = 'parabola'
+            else:
+                self._name = 'nothing'
+
     def identify(self):
         if not self.isvalid():
             raise ValueError(f'the conic equation {self._eqt} is invalid')
@@ -155,3 +192,4 @@ class Conic:
             self._translate()
         if self._eqt.coeffs['b'] != 0:
             self._rotate()
+        self._findName()
