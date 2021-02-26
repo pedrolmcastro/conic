@@ -14,11 +14,13 @@ class Conic:
         _ctr (Point/inf/None/str): number of centers the conic has and its coordinates if unique.
         _name (str): one of ['unknown', 'nothing', 'point', 'intersecting lines', 'parallel lines',
                              'coincident lines', 'circle', 'ellipse', 'hyperbola', 'parabola'].
+        _ang (float): angle of the rotation made to identify the conic.
     """
     def __init__(self, a, b, c, d, e, f):
         self._eqt = Equation(a, b, c, d, e, f)
         self._ctr = 'unknown'
         self._name = 'unknown'
+        self._ang = 0
 
     @classmethod
     def frominput(cls):
@@ -57,6 +59,10 @@ class Conic:
     @property
     def center(self):
         return copy.deepcopy(self._ctr)
+
+    @property
+    def angle(self):
+        return self._ang
 
     @property
     def name(self):
@@ -100,7 +106,7 @@ class Conic:
 
     def _translate(self):
         if isinstance(self._ctr, Point):
-            self._eqt.coeffs['f'] += (self._eqt.coeffs['d']*self._ctr.coords['x'] + self._eqt.coeffs['e']*self._ctr.coords['y']) / 2 #f = f + dh/2 + ek/2
+            self._eqt.coeffs['f'] += (self._eqt.coeffs['d']*self._ctr.coords['x'] + self._eqt.coeffs['e']*self._ctr.coords['y']) / 2 #f' = f + dh/2 + ek/2
             self._eqt.coeffs['d'] = 0
             self._eqt.coeffs['e'] = 0
         elif self._ctr == math.inf:
@@ -110,9 +116,36 @@ class Conic:
             else: #c != 0
                 h = 0
                 k = - self._eqt.coeffs['e'] / (2*self._eqt.coeffs['c']) #k = -e/2c
-            self._eqt.coeffs['f'] += (self._eqt.coeffs['d']*h + self._eqt.coeffs['e']*k) / 2 #f = f + dh/2 + ek/2
+            self._eqt.coeffs['f'] += (self._eqt.coeffs['d']*h + self._eqt.coeffs['e']*k) / 2 #f' = f + dh/2 + ek/2
             self._eqt.coeffs['d'] = 0
             self._eqt.coeffs['e'] = 0
+
+    def _findRotationAngle(self):
+        #Trigonometric functions values of 2*ang
+        doubleAngCotg = (self._eqt.coeffs['a'] - self._eqt.coeffs['c']) / self._eqt.coeffs['b'] #cotg(2θ) = (a-c)/b
+        doubleAngSin = 1 / math.sqrt(1 + doubleAngCotg**2) #sin(2θ) = 1/√1+cotg(2θ)²
+        doubleAngCos = doubleAngSin * doubleAngCotg #cos(2θ) = sin(2θ) * cotg(2θ)
+        #Trigonometric functions values of ang
+        angSin = math.sqrt((1 - doubleAngCos) / 2)
+        angCos = math.sqrt((1 + doubleAngCos) / 2)
+        self._ang = math.asin(angSin)
+        return angSin, angCos
+
+    def _rotate(self):
+        #d' = dcos(θ) + esin(θ)
+        #e' = -dsin(θ) + ecos(θ)
+        angSin, angCos = self._findRotationAngle()
+        d = self._eqt.coeffs['d']
+        e = self._eqt.coeffs['e']
+        self._eqt.coeffs['d'] = d*angCos + e*angSin #d' = dcos(θ) + esin(θ)
+        self._eqt.coeffs['e'] = - d*angSin + e*angCos #e' = -dsin(θ) + ecos(θ)
+        #a' + c' = a + c
+        #a' - c' = b√1+((a-c)/b)²
+        a = self._eqt.coeffs['a']
+        c = self._eqt.coeffs['c']
+        self._eqt.coeffs['a'] = (a + c + self._eqt.coeffs['b']*math.sqrt(1 + ((a-c)/self._eqt.coeffs['b'])**2)) / 2 #a' = a + c + b√1+((a-c)/b)²
+        self._eqt.coeffs['c'] = a + c - self._eqt.coeffs['a'] #c' = a + c - a'
+        self._eqt.coeffs['b'] = 0
 
     def identify(self):
         if not self.isvalid():
@@ -120,3 +153,5 @@ class Conic:
         self._findCenter()
         if isinstance(self._ctr, Point) or self._ctr == math.inf:
             self._translate()
+        if self._eqt.coeffs['b'] != 0:
+            self._rotate()

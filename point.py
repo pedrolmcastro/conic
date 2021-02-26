@@ -7,7 +7,7 @@ class Point:
     Attributes:
         coords (dict of float): point coordinates.
     """
-    def __init__(self, x=0, y=0):
+    def __init__(self, x, y):
         self.coords = dict()
         self.coords['x'] = real.parse(x)
         self.coords['y'] = real.parse(y)
