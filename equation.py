@@ -5,16 +5,20 @@ class Equation:
     A conic equation general form representation.
     
     Attributes:
-        coeffs (dict of float): all equation coefficients.
+        a (float): coefficient of x².
+        b (float): coefficient of xy.
+        c (float): coefficient of y².
+        d (float): coefficient of x.
+        e (float): coefficient of y.
+        f (float): linear term.
     """
     def __init__(self, a, b, c, d, e, f):
-        self.coeffs = dict()
-        self.coeffs['a'] = real.parse(a)
-        self.coeffs['b'] = real.parse(b)
-        self.coeffs['c'] = real.parse(c)
-        self.coeffs['d'] = real.parse(d)
-        self.coeffs['e'] = real.parse(e)
-        self.coeffs['f'] = real.parse(f)
+        self.a = real.parse(a)
+        self.b = real.parse(b)
+        self.c = real.parse(c)
+        self.d = real.parse(d)
+        self.e = real.parse(e)
+        self.f = real.parse(f)
 
     @classmethod
     def frominput(cls):
@@ -28,7 +32,7 @@ class Equation:
 
     def __repr__(self):
         return (f'{self.__class__.__module__}.{self.__class__.__qualname__}' + 
-                f'({self.coeffs["a"]}, {self.coeffs["b"]}, {self.coeffs["c"]}, {self.coeffs["d"]}, {self.coeffs["e"]}, {self.coeffs["f"]})')
+                f'({self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f})')
 
     def __str__(self):
         coeffToVar = {
@@ -39,16 +43,15 @@ class Equation:
             'e': 'y',
             'f': '',
         }
-        if self.coeffs.keys() != coeffToVar.keys():
-            raise KeyError(f'Equation.coeffs {self.coeffs.keys()} must be equal to coeffToVar {coeffToVar.keys()}')
 
         string = 'g(x, y) ='
-        for coeff, val in self.coeffs.items():
+        for coeff, val in self.__dict__.items():
             if val < 0:
                 string += f' - {-val}{coeffToVar[coeff]}'
+            #if val == 0 the term is not printed
             elif val > 0:
                 string += f' + {val}{coeffToVar[coeff]}'
-            #if val == 0 is not printed
         if string == 'g(x, y) =': #empty equation
             string += ' 0'
+
         return string

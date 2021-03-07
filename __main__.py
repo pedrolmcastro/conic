@@ -1,8 +1,8 @@
-import math
-
 from conic import Conic
 
-cnc = Conic(1, 0, 1, 0, 0, 1) #nothing
+cnc = Conic.frominput()
+
+#cnc = Conic(1, 0, 1, 0, 0, 1) #nothing
 #cnc = Conic(1, 0, 1, 0, 0, 0) #point
 #cnc = Conic(1, 0, 1, -2, -2, -2) #circle
 #cnc = Conic(2, -1, 2, 0, 0, -30) #ellipse
