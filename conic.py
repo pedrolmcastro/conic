@@ -2,22 +2,83 @@ import math
 import copy
 
 import real
-from point import Point
-from equation import Equation
+
+class _Point:
+    """
+    A 2D space point representation.
+
+    Attributes:
+        x (float): abscissa coordinate.
+        y (float): ordinate coordinate.
+    """
+    def __init__(self, x, y):
+        self.x = real.parse(x)
+        self.y = real.parse(y)
+
+    def __repr__(self):
+        return f'{self.__class__.__module__}.{self.__class__.__qualname__}({self.x}, {self.y})'
+
+    def __str__(self):
+        return f'({self.x}, {self.y})'
+
+
+class _Equation:
+    """
+    A conic equation general form representation.
+    
+    Attributes:
+        a (float): coefficient of x².
+        b (float): coefficient of xy.
+        c (float): coefficient of y².
+        d (float): coefficient of x.
+        e (float): coefficient of y.
+        f (float): linear term.
+    """
+    def __init__(self, a, b, c, d, e, f):
+        self.a = real.parse(a)
+        self.b = real.parse(b)
+        self.c = real.parse(c)
+        self.d = real.parse(d)
+        self.e = real.parse(e)
+        self.f = real.parse(f)
+
+    def __repr__(self):
+        return (f'{self.__class__.__module__}.{self.__class__.__qualname__}' + 
+                f'({self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f})')
+
+    def __str__(self):
+        coeffToVar = {
+            'a': 'x²',
+            'b': 'xy',
+            'c': 'y²',
+            'd': 'x',
+            'e': 'y',
+            'f': '',
+        }
+        eqt = 'g(x, y) ='
+        for coeff, val in self.__dict__.items():
+            if val < 0:
+                eqt += f' - {-val}{coeffToVar[coeff]}'
+            elif val > 0:
+                eqt += f' + {val}{coeffToVar[coeff]}'
+        if eqt == 'g(x, y) =': #empty equation
+            eqt += ' 0'
+        return eqt
+
 
 class Conic:
     """
     A conic representation.
     
     Attributes:
-        _eqt (Equation): general form equation.
-        _ctr (Point/inf/None/str): number of centers the conic has and its coordinates if unique.
+        _eqt (_Equation): general form equation.
+        _ctr (_Point/inf/None/str): number of centers the conic has and its coordinates if unique.
         _name (str): one of ['unknown', 'nothing', 'point', 'intersecting lines', 'parallel lines',
                              'coincident lines', 'circle', 'ellipse', 'hyperbola', 'parabola'].
         _ang (float): angle of the rotation made to identify the conic.
     """
     def __init__(self, a, b, c, d, e, f):
-        self._eqt = Equation(a, b, c, d, e, f)
+        self._eqt = _Equation(a, b, c, d, e, f)
         self._ctr = 'unknown'
         self._name = 'unknown'
         self._ang = 0
@@ -30,18 +91,6 @@ class Conic:
         d = real.get('d: ')
         e = real.get('e: ')
         f = real.get('f: ')
-        return cls(a, b, c, d, e, f)
-
-    @classmethod
-    def fromequation(cls, eqt):
-        if not isinstance(eqt, Equation):
-            raise TypeError(f'equation must be of class Equation, not {type(eqt)}')
-        a = eqt.a
-        b = eqt.b
-        c = eqt.c
-        d = eqt.d
-        e = eqt.e
-        f = eqt.f
         return cls(a, b, c, d, e, f)
 
     def __repr__(self):
@@ -60,12 +109,12 @@ class Conic:
         return copy.deepcopy(self._ctr)
 
     @property
-    def angle(self):
-        return self._ang
-
-    @property
     def name(self):
         return self._name
+
+    @property
+    def angle(self):
+        return self._ang
 
     @property
     def det(self):
@@ -95,14 +144,14 @@ class Conic:
             else:
                 k = (self._eqt.b*self._eqt.d - 2*self._eqt.a*self._eqt.e) / (4*self.det) #k = (bd - 2ae) / (4*det)
                 h = - (self._eqt.b*k + self._eqt.d) / (2*self._eqt.a) #h = -(bk + d) / 2a
-            self._ctr = Point(h, k)
+            self._ctr = _Point(h, k)
         elif self._isDependentSystem():
             self._ctr = math.inf
         else: #inconsistent system
             self._ctr = None
 
     def _translate(self):
-        if isinstance(self._ctr, Point):
+        if isinstance(self._ctr, _Point):
             self._eqt.f += (self._eqt.d*self._ctr.x + self._eqt.e*self._ctr.y) / 2 #f' = f + dh/2 + ek/2
             self._eqt.d = 0
             self._eqt.e = 0
@@ -118,11 +167,11 @@ class Conic:
             self._eqt.e = 0
 
     def _findRotationAngle(self):
-        #Trigonometric functions values of 2*ang
+        #Trigonometric functions values of 2θ
         doubleAngCotg = (self._eqt.a - self._eqt.c) / self._eqt.b #cotg(2θ) = (a-c)/b
         doubleAngSin = 1 / math.sqrt(1 + doubleAngCotg**2) #sin(2θ) = 1/√1+cotg(2θ)²
         doubleAngCos = doubleAngSin * doubleAngCotg #cos(2θ) = sin(2θ) * cotg(2θ)
-        #Trigonometric functions values of ang
+        #Trigonometric functions values of θ
         angSin = math.sqrt((1 - doubleAngCos) / 2) #sin(θ) = √1-cos(2θ)
         angCos = math.sqrt((1 + doubleAngCos) / 2) #cos(θ) = √1+cos(2θ)
         self._ang = math.asin(angSin)
@@ -145,7 +194,7 @@ class Conic:
         self._eqt.b = 0
 
     def _findName(self):
-        if isinstance(self._ctr, Point):
+        if isinstance(self._ctr, _Point):
             #nothing, point, circle, ellipse, hyperbola or intersecting lines
             if self._eqt.f == 0:
                 if self._eqt.a * self._eqt.c < 0:
@@ -185,7 +234,7 @@ class Conic:
         if not self.isvalid():
             raise ValueError(f'the conic equation {self._eqt} is invalid')
         self._findCenter()
-        if isinstance(self._ctr, Point) or self._ctr == math.inf:
+        if isinstance(self._ctr, _Point) or self._ctr == math.inf:
             self._translate()
         if self._eqt.b != 0:
             self._rotate()
