@@ -1,7 +1,7 @@
 import math
 import copy
 
-import real
+import number
 
 class _Point:
     """
@@ -12,8 +12,8 @@ class _Point:
         y (float): ordinate coordinate.
     """
     def __init__(self, x, y):
-        self.x = real.parse(x)
-        self.y = real.parse(y)
+        self.x = number.Real.parse(x)
+        self.y = number.Real.parse(y)
 
     def __repr__(self):
         return f'{self.__class__.__module__}.{self.__class__.__qualname__}({self.x}, {self.y})'
@@ -35,12 +35,12 @@ class _Equation:
         f (float): linear term.
     """
     def __init__(self, a, b, c, d, e, f):
-        self.a = real.parse(a)
-        self.b = real.parse(b)
-        self.c = real.parse(c)
-        self.d = real.parse(d)
-        self.e = real.parse(e)
-        self.f = real.parse(f)
+        self.a = number.Real.parse(a)
+        self.b = number.Real.parse(b)
+        self.c = number.Real.parse(c)
+        self.d = number.Real.parse(d)
+        self.e = number.Real.parse(e)
+        self.f = number.Real.parse(f)
 
     def __repr__(self):
         return (f'{self.__class__.__module__}.{self.__class__.__qualname__}' + 
@@ -85,12 +85,12 @@ class Conic:
 
     @classmethod
     def frominput(cls):
-        a = real.get('a: ')
-        b = real.get('b: ')
-        c = real.get('c: ')
-        d = real.get('d: ')
-        e = real.get('e: ')
-        f = real.get('f: ')
+        a = number.Real.get('a: ')
+        b = number.Real.get('b: ')
+        c = number.Real.get('c: ')
+        d = number.Real.get('d: ')
+        e = number.Real.get('e: ')
+        f = number.Real.get('f: ')
         return cls(a, b, c, d, e, f)
 
     def __repr__(self):
