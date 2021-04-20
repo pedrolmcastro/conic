@@ -191,6 +191,15 @@ class Conic:
 
     class _Equation:
         '''Conic general form equation.'''
+        COEFFICIENT_TO_VARIABLE = {
+            'a': 'x²',
+            'b': 'xy',
+            'c': 'y²',
+            'd': 'x',
+            'e': 'y',
+            'f': '',
+        }
+
         def __init__(self, a, b, c, d, e, f):
             self.a = number.Real.parse(a)
             self.b = number.Real.parse(b)
@@ -204,20 +213,5 @@ class Conic:
                     f'({self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f})')
 
         def __str__(self):
-            coeffToVar = {
-                'a': 'x²',
-                'b': 'xy',
-                'c': 'y²',
-                'd': 'x',
-                'e': 'y',
-                'f': '',
-            }
-            eqt = 'g(x, y) ='
-            for coeff, val in self.__dict__.items():
-                if val < 0:
-                    eqt += f' - {-val}{coeffToVar[coeff]}'
-                elif val > 0:
-                    eqt += f' + {val}{coeffToVar[coeff]}'
-            if eqt == 'g(x, y) =': #empty equation
-                eqt += ' 0'
-            return eqt
+            return ' + '.join([f'({value}){self.COEFFICIENT_TO_VARIABLE[coefficient]}'
+                               for coefficient, value in self.__dict__.items() if value != 0])
