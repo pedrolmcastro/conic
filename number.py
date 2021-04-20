@@ -1,5 +1,6 @@
 import math
 
+
 class Real:
     '''Functions to get and parse finite floats.'''
 

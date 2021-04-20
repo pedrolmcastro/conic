@@ -3,6 +3,7 @@ import copy
 
 import number
 
+
 class Conic:
     """
     A conic representation.
@@ -179,6 +180,7 @@ class Conic:
 
     class _Point:
         '''2D point.'''
+
         def __init__(self, x, y):
             self.x = number.Real.parse(x)
             self.y = number.Real.parse(y)
@@ -191,6 +193,7 @@ class Conic:
 
     class _Equation:
         '''Conic general form equation.'''
+
         COEFFICIENT_TO_VARIABLE = {
             'a': 'x²',
             'b': 'xy',

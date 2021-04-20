@@ -1,5 +1,6 @@
 from conic import Conic
 
+
 cnc = Conic.frominput()
 
 #cnc = Conic(1, 0, 1, 0, 0, 1) #nothing
