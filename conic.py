@@ -5,16 +5,7 @@ import number
 
 
 class Conic:
-    """
-    A conic representation.
-    
-    Attributes:
-        _equation (_Equation): general form equation.
-        _center (_Point/inf/None/str): number of centers the conic has and its coordinates if unique.
-        _name (str): one of ['unknown', 'nothing', 'point', 'intersecting lines', 'parallel lines',
-                             'coincident lines', 'circle', 'ellipse', 'hyperbola', 'parabola'].
-        _angle (float): angle of the rotation made to identify the conic.
-    """
+    '''Conic representation.'''
 
     def __init__(self, a, b, c, d, e, f):
         self._equation = self._Equation(a, b, c, d, e, f)
