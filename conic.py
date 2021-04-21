@@ -76,9 +76,10 @@ class Conic:
                 x = - (self._equation.b * y + self._equation.d) / (2 * self._equation.a)
             self._center = self._Point(x, y)
         #dependent system:
-        elif self._equation.a != 0 and math.isclose(self._equation.e, (self._equation.b * self._equation.d) / (2 * self._equation.a)):
-            self._center = math.inf
-        elif self._equation.c != 0 and math.isclose(self._equation.d, (self._equation.b * self._equation.e) / (2 * self._equation.c)):
+        elif ((self._equation.a != 0 and
+               math.isclose(self._equation.e, (self._equation.b * self._equation.d) / (2 * self._equation.a))) or
+              (self._equation.c != 0 and
+               math.isclose(self._equation.d, (self._equation.b * self._equation.e) / (2 * self._equation.c)))):
             self._center = math.inf
         #inconsistent system
         else:

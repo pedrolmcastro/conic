@@ -12,4 +12,5 @@ from conic import Conic
 # conic = Conic(1, 0, -1, 0, 0, 0)     # intersecting lines
 conic = Conic.frominput()
 
-print(conic.isvalid())
+conic.identify()
+print(conic)
