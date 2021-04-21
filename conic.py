@@ -9,18 +9,18 @@ class Conic:
     A conic representation.
     
     Attributes:
-        _eqt (_Equation): general form equation.
-        _ctr (_Point/inf/None/str): number of centers the conic has and its coordinates if unique.
+        _equation (_Equation): general form equation.
+        _center (_Point/inf/None/str): number of centers the conic has and its coordinates if unique.
         _name (str): one of ['unknown', 'nothing', 'point', 'intersecting lines', 'parallel lines',
                              'coincident lines', 'circle', 'ellipse', 'hyperbola', 'parabola'].
-        _ang (float): angle of the rotation made to identify the conic.
+        _angle (float): angle of the rotation made to identify the conic.
     """
 
     def __init__(self, a, b, c, d, e, f):
-        self._eqt = self._Equation(a, b, c, d, e, f)
-        self._ctr = 'unknown'
+        self._equation = self._Equation(a, b, c, d, e, f)
+        self._center = 'unknown'
         self._name = 'unknown'
-        self._ang = 0
+        self._angle = 0
 
     @classmethod
     def frominput(cls):
@@ -34,18 +34,19 @@ class Conic:
 
     def __repr__(self):
         return (f'{self.__class__.__module__}.{self.__class__.__qualname__}' +
-                f'({self._eqt.a}, {self._eqt.b}, {self._eqt.c}, {self._eqt.d}, {self._eqt.e}, {self._eqt.f})')
+                f'({self._equation.a}, {self._equation.b}, {self._equation.c}, ' +
+                f'{self._equation.d}, {self._equation.e}, {self._equation.f})')
 
     def __str__(self):
         return self._name
 
     @property
     def equation(self):
-        return copy.deepcopy(self._eqt)
+        return copy.deepcopy(self._equation)
 
     @property
     def center(self):
-        return copy.deepcopy(self._ctr)
+        return copy.deepcopy(self._center)
 
     @property
     def name(self):
@@ -53,14 +54,15 @@ class Conic:
 
     @property
     def angle(self):
-        return self._ang
+        return self._angle
 
     @property
     def det(self):
-        return self._eqt.a*self._eqt.c - self._eqt.b**2/4 #det = ac - b²/4
+        #det = ac - b²/4
+        return self._equation.a * self._equation.c - self._equation.b ** 2 / 4
 
     def isvalid(self):
-        if self._eqt.a != 0 or self._eqt.b != 0 or self._eqt.c != 0:
+        if self._equation.a != 0 or self._equation.b != 0 or self._equation.c != 0:
             return True
         else:
             return False
@@ -70,76 +72,76 @@ class Conic:
         #bh/2 + ck + e/2 = 0
         #independent system
         if self.det != 0:
-            if self._eqt.a == 0:
-                k = - self._eqt.d / self._eqt.b #k = -d/b
-                h = - (2*self._eqt.c*k + self._eqt.e) / self._eqt.b #h = -(2ck + e) / b
+            if self._equation.a == 0:
+                k = - self._equation.d / self._equation.b #k = -d/b
+                h = - (2*self._equation.c*k + self._equation.e) / self._equation.b #h = -(2ck + e) / b
             else:
-                k = (self._eqt.b*self._eqt.d - 2*self._eqt.a*self._eqt.e) / (4*self.det) #k = (bd - 2ae) / (4*det)
-                h = - (self._eqt.b*k + self._eqt.d) / (2*self._eqt.a) #h = -(bk + d) / 2a
-            self._ctr = self._Point(h, k)
+                k = (self._equation.b*self._equation.d - 2*self._equation.a*self._equation.e) / (4*self.det) #k = (bd - 2ae) / (4*det)
+                h = - (self._equation.b*k + self._equation.d) / (2*self._equation.a) #h = -(bk + d) / 2a
+            self._center = self._Point(h, k)
         #dependent system:
-        elif self._eqt.a != 0 and math.isclose(self._eqt.e, (self._eqt.b*self._eqt.d) / (2*self._eqt.a)): #e = bd/2a
-            self._ctr = math.inf
-        elif self._eqt.c != 0 and math.isclose(self._eqt.d, (self._eqt.b*self._eqt.e) / (2*self._eqt.c)): #d = be/2c
-            self._ctr = math.inf
+        elif self._equation.a != 0 and math.isclose(self._equation.e, (self._equation.b*self._equation.d) / (2*self._equation.a)): #e = bd/2a
+            self._center = math.inf
+        elif self._equation.c != 0 and math.isclose(self._equation.d, (self._equation.b*self._equation.e) / (2*self._equation.c)): #d = be/2c
+            self._center = math.inf
         #inconsistent system
         else:
-            self._ctr = None
+            self._center = None
 
     def _translate(self):
-        if isinstance(self._ctr, self._Point):
-            self._eqt.f += (self._eqt.d*self._ctr.x + self._eqt.e*self._ctr.y) / 2 #f' = f + dh/2 + ek/2
-            self._eqt.d = 0
-            self._eqt.e = 0
-        elif self._ctr == math.inf:
-            if self._eqt.a != 0:
+        if isinstance(self._center, self._Point):
+            self._equation.f += (self._equation.d*self._center.x + self._equation.e*self._center.y) / 2 #f' = f + dh/2 + ek/2
+            self._equation.d = 0
+            self._equation.e = 0
+        elif self._center == math.inf:
+            if self._equation.a != 0:
                 k = 0
-                h = - self._eqt.d / (2*self._eqt.a) #h = -d/2a
+                h = - self._equation.d / (2*self._equation.a) #h = -d/2a
             else: #c != 0
                 h = 0
-                k = - self._eqt.e / (2*self._eqt.c) #k = -e/2c
-            self._eqt.f += (self._eqt.d*h + self._eqt.e*k) / 2 #f' = f + dh/2 + ek/2
-            self._eqt.d = 0
-            self._eqt.e = 0
+                k = - self._equation.e / (2*self._equation.c) #k = -e/2c
+            self._equation.f += (self._equation.d*h + self._equation.e*k) / 2 #f' = f + dh/2 + ek/2
+            self._equation.d = 0
+            self._equation.e = 0
 
     def _findRotationAngle(self):
-        if self._eqt.b == 0:
-            self._ang = 0
+        if self._equation.b == 0:
+            self._angle = 0
         #cot(2θ) = (a-c)/b
-        elif self._eqt.a - self._eqt.c == 0:
-            self._ang = math.pi / 4 #2θ = pi/2 = acot(0)
+        elif self._equation.a - self._equation.c == 0:
+            self._angle = math.pi / 4 #2θ = pi/2 = acot(0)
         else:
-            self._ang = math.atan2(self._eqt.b, self._eqt.a-self._eqt.c) / 2 #2θ = atan(b/(a-c))
+            self._angle = math.atan2(self._equation.b, self._equation.a-self._equation.c) / 2 #2θ = atan(b/(a-c))
 
     def _rotate(self):
-        if self._eqt.b != 0:
+        if self._equation.b != 0:
             self._findRotationAngle()
             #d' = dcos(θ) + esin(θ)
             #e' = -dsin(θ) + ecos(θ)
-            d = self._eqt.d
-            e = self._eqt.e
-            self._eqt.d = d*math.cos(self._ang) + e*math.sin(self._ang) #d' = dcos(θ) + esin(θ)
-            self._eqt.e = - d*math.sin(self._ang) + e*math.cos(self._ang) #e' = -dsin(θ) + ecos(θ)
+            d = self._equation.d
+            e = self._equation.e
+            self._equation.d = d*math.cos(self._angle) + e*math.sin(self._angle) #d' = dcos(θ) + esin(θ)
+            self._equation.e = - d*math.sin(self._angle) + e*math.cos(self._angle) #e' = -dsin(θ) + ecos(θ)
             #a' + c' = a + c
             #a' - c' = b√1+((a-c)/b)²
-            a = self._eqt.a
-            c = self._eqt.c
-            self._eqt.a = (a + c + self._eqt.b*math.sqrt(1 + ((a-c)/self._eqt.b)**2)) / 2 #a' = (a + c + b√1+((a-c)/b)²) / 2
-            self._eqt.c = a + c - self._eqt.a #c' = a + c - a'
-            self._eqt.b = 0
+            a = self._equation.a
+            c = self._equation.c
+            self._equation.a = (a + c + self._equation.b*math.sqrt(1 + ((a-c)/self._equation.b)**2)) / 2 #a' = (a + c + b√1+((a-c)/b)²) / 2
+            self._equation.c = a + c - self._equation.a #c' = a + c - a'
+            self._equation.b = 0
 
     def _findName(self):
         #nothing, point, circle, ellipse, hyperbola or intersecting lines
-        if isinstance(self._ctr, self._Point):
-            if self._eqt.f == 0:
+        if isinstance(self._center, self._Point):
+            if self._equation.f == 0:
                 #ax² + cy² = 0
-                if self._eqt.a * self._eqt.c < 0:
+                if self._equation.a * self._equation.c < 0:
                     self._name = 'intersecting lines'
                 else:
                     self._name = 'point'
             else:
-                A = - self._eqt.a / self._eqt.f
-                C = - self._eqt.c / self._eqt.f
+                A = - self._equation.a / self._equation.f
+                C = - self._equation.c / self._equation.f
                 #Ax² + Cy² = 1
                 if A * C < 0:
                     self._name = 'hyperbola'
@@ -151,30 +153,30 @@ class Conic:
                     else:
                         self._name = 'ellipse'
         #nothing, parallel lines or coincident lines
-        elif self._ctr == math.inf:
+        elif self._center == math.inf:
             #ax² + f = 0 or cy² + f = 0
-            if self._eqt.f == 0:
+            if self._equation.f == 0:
                 self._name = 'coincident lines'
-            elif self._eqt.a*self._eqt.f < 0 or self._eqt.c*self._eqt.f < 0:
+            elif self._equation.a*self._equation.f < 0 or self._equation.c*self._equation.f < 0:
                 self._name = 'parallel lines'
             else:
                 self._name = 'nothing'
         #nothing or parabola
-        elif self._ctr == None:
-            if self._eqt.a != 0 and self._eqt.e != 0:
+        elif self._center == None:
+            if self._equation.a != 0 and self._equation.e != 0:
                 self._name = 'parabola'
-            elif self._eqt.c != 0 and self._eqt.d != 0:
+            elif self._equation.c != 0 and self._equation.d != 0:
                 self._name = 'parabola'
             else:
                 self._name = 'nothing'
 
     def identify(self):
         if not self.isvalid():
-            raise ValueError(f'the conic equation {self._eqt} is invalid')
+            raise ValueError(f'the conic equation {self._equation} is invalid')
         self._findCenter()
-        if isinstance(self._ctr, self._Point) or self._ctr == math.inf:
+        if isinstance(self._center, self._Point) or self._center == math.inf:
             self._translate()
-        if self._eqt.b != 0:
+        if self._equation.b != 0:
             self._rotate()
         self._findName()
 
