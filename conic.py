@@ -138,7 +138,6 @@ class Conic:
             self._equation.b = 0
 
     def _findName(self):
-        # nothing, point, circle, ellipse, hyperbola or intersecting lines
         if isinstance(self._center, self._Point):
             if self._equation.f == 0:
                 # ax² + cy² = 0
@@ -154,12 +153,10 @@ class Conic:
                     self._name = 'hyperbola'
                 elif A < 0 and C < 0:
                     self._name = 'nothing'
+                elif A == C:
+                    self._name = 'circle'
                 else:
-                    if A == C:
-                        self._name = 'circle'
-                    else:
-                        self._name = 'ellipse'
-        # nothing, parallel lines or coincident lines
+                    self._name = 'ellipse'
         elif self._center == math.inf:
             # ax² + f = 0 or cy² + f = 0
             if self._equation.f == 0:
@@ -168,7 +165,6 @@ class Conic:
                 self._name = 'parallel lines'
             else:
                 self._name = 'nothing'
-        # nothing or parabola
         elif self._center == None:
             if ((self._equation.a != 0 and self._equation.e != 0) or
                 (self._equation.c != 0 and self._equation.d != 0)):
