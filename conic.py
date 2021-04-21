@@ -57,8 +57,8 @@ class Conic:
         return self._angle
 
     @property
-    def det(self):
-        #det = ac - b²/4
+    def determinant(self):
+        #determinant = ac - b²/4
         return self._equation.a * self._equation.c - self._equation.b ** 2 / 4
 
     def isvalid(self):
@@ -71,12 +71,12 @@ class Conic:
         #ah + bk/2 + d/2 = 0
         #bh/2 + ck + e/2 = 0
         #independent system
-        if self.det != 0:
+        if self.determinant != 0:
             if self._equation.a == 0:
                 k = - self._equation.d / self._equation.b #k = -d/b
                 h = - (2*self._equation.c*k + self._equation.e) / self._equation.b #h = -(2ck + e) / b
             else:
-                k = (self._equation.b*self._equation.d - 2*self._equation.a*self._equation.e) / (4*self.det) #k = (bd - 2ae) / (4*det)
+                k = (self._equation.b*self._equation.d - 2*self._equation.a*self._equation.e) / (4*self.determinant) #k = (bd - 2ae) / (4*determinant)
                 h = - (self._equation.b*k + self._equation.d) / (2*self._equation.a) #h = -(bk + d) / 2a
             self._center = self._Point(h, k)
         #dependent system:
