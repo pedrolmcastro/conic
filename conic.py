@@ -58,7 +58,6 @@ class Conic:
 
     @property
     def determinant(self):
-        #determinant = ac - b²/4
         return self._equation.a * self._equation.c - self._equation.b ** 2 / 4
 
     def isvalid(self):
@@ -73,16 +72,16 @@ class Conic:
         #independent system
         if self.determinant != 0:
             if self._equation.a == 0:
-                k = - self._equation.d / self._equation.b #k = -d/b
-                h = - (2 * self._equation.c * k + self._equation.e) / self._equation.b #h = -(2ck + e) / b
+                k = - self._equation.d / self._equation.b
+                h = - (2 * self._equation.c * k + self._equation.e) / self._equation.b
             else:
-                k = (self._equation.b * self._equation.d - 2 * self._equation.a * self._equation.e) / (4 * self.determinant) #k = (bd - 2ae) / (4*determinant)
-                h = - (self._equation.b * k + self._equation.d) / (2 * self._equation.a) #h = -(bk + d) / 2a
+                k = (self._equation.b * self._equation.d - 2 * self._equation.a * self._equation.e) / (4 * self.determinant)
+                h = - (self._equation.b * k + self._equation.d) / (2 * self._equation.a)
             self._center = self._Point(h, k)
         #dependent system:
-        elif self._equation.a != 0 and math.isclose(self._equation.e, (self._equation.b * self._equation.d) / (2 * self._equation.a)): #e = bd/2a
+        elif self._equation.a != 0 and math.isclose(self._equation.e, (self._equation.b * self._equation.d) / (2 * self._equation.a)):
             self._center = math.inf
-        elif self._equation.c != 0 and math.isclose(self._equation.d, (self._equation.b * self._equation.e) / (2 * self._equation.c)): #d = be/2c
+        elif self._equation.c != 0 and math.isclose(self._equation.d, (self._equation.b * self._equation.e) / (2 * self._equation.c)):
             self._center = math.inf
         #inconsistent system
         else:
@@ -90,17 +89,17 @@ class Conic:
 
     def _translate(self):
         if isinstance(self._center, self._Point):
-            self._equation.f += (self._equation.d * self._center.x + self._equation.e * self._center.y) / 2 #f' = f + dh/2 + ek/2
+            self._equation.f += (self._equation.d * self._center.x + self._equation.e * self._center.y) / 2
             self._equation.d = 0
             self._equation.e = 0
         elif self._center == math.inf:
             if self._equation.a != 0:
                 k = 0
-                h = - self._equation.d / (2 * self._equation.a) #h = -d/2a
+                h = - self._equation.d / (2 * self._equation.a)
             else: #c != 0
                 h = 0
-                k = - self._equation.e / (2 * self._equation.c) #k = -e/2c
-            self._equation.f += (self._equation.d * h + self._equation.e * k) / 2 #f' = f + dh/2 + ek/2
+                k = - self._equation.e / (2 * self._equation.c)
+            self._equation.f += (self._equation.d * h + self._equation.e * k) / 2
             self._equation.d = 0
             self._equation.e = 0
 
@@ -109,9 +108,9 @@ class Conic:
             self._angle = 0
         #cot(2θ) = (a-c)/b
         elif self._equation.a - self._equation.c == 0:
-            self._angle = math.pi / 4 #2θ = pi/2 = acot(0)
+            self._angle = math.pi / 4
         else:
-            self._angle = math.atan2(self._equation.b, self._equation.a - self._equation.c) / 2 #2θ = atan(b/(a-c))
+            self._angle = math.atan2(self._equation.b, self._equation.a - self._equation.c) / 2
 
     def _rotate(self):
         if self._equation.b != 0:
@@ -120,14 +119,14 @@ class Conic:
             #e' = -dsin(θ) + ecos(θ)
             d = self._equation.d
             e = self._equation.e
-            self._equation.d = d * math.cos(self._angle) + e * math.sin(self._angle) #d' = dcos(θ) + esin(θ)
-            self._equation.e = - d * math.sin(self._angle) + e * math.cos(self._angle) #e' = -dsin(θ) + ecos(θ)
+            self._equation.d = d * math.cos(self._angle) + e * math.sin(self._angle)
+            self._equation.e = - d * math.sin(self._angle) + e * math.cos(self._angle)
             #a' + c' = a + c
             #a' - c' = b√1+((a-c)/b)²
             a = self._equation.a
             c = self._equation.c
-            self._equation.a = (a + c + self._equation.b * math.sqrt(1 + ((a - c) / self._equation.b) ** 2)) / 2 #a' = (a + c + b√1+((a-c)/b)²) / 2
-            self._equation.c = a + c - self._equation.a #c' = a + c - a'
+            self._equation.a = (a + c + self._equation.b * math.sqrt(1 + ((a - c) / self._equation.b) ** 2)) / 2
+            self._equation.c = a + c - self._equation.a
             self._equation.b = 0
 
     def _findName(self):
