@@ -61,10 +61,7 @@ class Conic:
         return self._equation.a * self._equation.c - self._equation.b ** 2 / 4
 
     def isvalid(self):
-        if self._equation.a != 0 or self._equation.b != 0 or self._equation.c != 0:
-            return True
-        else:
-            return False
+        return any([getattr(self._equation, coefficient) != 0 for coefficient in ['a', 'b', 'c']])
 
     def _findCenter(self):
         #ax + by/2 + d/2 = 0
