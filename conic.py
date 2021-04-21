@@ -38,24 +38,6 @@ class Equation:
         self.e = number.Real.parse(e)
         self.f = number.Real.parse(f)
 
-    def __repr__(self):
-        return (f'{self.__class__.__module__}.{self.__class__.__qualname__}' + 
-                f'({self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f})')
-
-    def __str__(self):
-        return ' + '.join([f'({value}){self.COEFFICIENT_TO_VARIABLE[coefficient]}'
-                            for coefficient, value in self.__dict__.items() if value != 0])
-
-
-class Conic:
-    '''Conic representation.'''
-
-    def __init__(self, a, b, c, d, e, f):
-        self._equation = self._Equation(a, b, c, d, e, f)
-        self._center = 'unknown'
-        self._name = 'unknown'
-        self._angle = 0
-
     @classmethod
     def frominput(cls):
         a = number.Real.get('a: ')
@@ -67,28 +49,16 @@ class Conic:
         return cls(a, b, c, d, e, f)
 
     def __repr__(self):
-        return (f'{self.__class__.__module__}.{self.__class__.__qualname__}' +
-                f'({self._equation.a}, {self._equation.b}, {self._equation.c}, ' +
-                f'{self._equation.d}, {self._equation.e}, {self._equation.f})')
+        return (f'{self.__class__.__module__}.{self.__class__.__qualname__}' + 
+                f'({self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f})')
 
     def __str__(self):
-        return self._name
+        return ' + '.join([f'({value}){self.COEFFICIENT_TO_VARIABLE[coefficient]}'
+                            for coefficient, value in self.__dict__.items() if value != 0])
 
-    @property
-    def equation(self):
-        return copy.deepcopy(self._equation)
 
-    @property
-    def center(self):
-        return copy.deepcopy(self._center)
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def angle(self):
-        return self._angle
+class Conic:
+    '''Conic functions.'''
 
     @property
     def determinant(self):
