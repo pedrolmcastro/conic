@@ -67,17 +67,17 @@ class Conic:
             return False
 
     def _findCenter(self):
-        #ah + bk/2 + d/2 = 0
-        #bh/2 + ck + e/2 = 0
+        #ax + by/2 + d/2 = 0
+        #bx/2 + cy + e/2 = 0
         #independent system
         if self.determinant != 0:
             if self._equation.a == 0:
-                k = - self._equation.d / self._equation.b
-                h = - (2 * self._equation.c * k + self._equation.e) / self._equation.b
+                y = - self._equation.d / self._equation.b
+                x = - (2 * self._equation.c * y + self._equation.e) / self._equation.b
             else:
-                k = (self._equation.b * self._equation.d - 2 * self._equation.a * self._equation.e) / (4 * self.determinant)
-                h = - (self._equation.b * k + self._equation.d) / (2 * self._equation.a)
-            self._center = self._Point(h, k)
+                y = (self._equation.b * self._equation.d - 2 * self._equation.a * self._equation.e) / (4 * self.determinant)
+                x = - (self._equation.b * y + self._equation.d) / (2 * self._equation.a)
+            self._center = self._Point(x, y)
         #dependent system:
         elif self._equation.a != 0 and math.isclose(self._equation.e, (self._equation.b * self._equation.d) / (2 * self._equation.a)):
             self._center = math.inf
@@ -94,12 +94,12 @@ class Conic:
             self._equation.e = 0
         elif self._center == math.inf:
             if self._equation.a != 0:
-                k = 0
-                h = - self._equation.d / (2 * self._equation.a)
-            else: #c != 0
-                h = 0
-                k = - self._equation.e / (2 * self._equation.c)
-            self._equation.f += (self._equation.d * h + self._equation.e * k) / 2
+                y = 0
+                x = - self._equation.d / (2 * self._equation.a)
+            else:  # c != 0
+                x = 0
+                y = - self._equation.e / (2 * self._equation.c)
+            self._equation.f += (self._equation.d * x + self._equation.e * y) / 2
             self._equation.d = 0
             self._equation.e = 0
 
