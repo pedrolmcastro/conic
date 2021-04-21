@@ -4,6 +4,49 @@ import copy
 import number
 
 
+class Point:
+    '''2D point.'''
+
+    def __init__(self, x, y):
+        self.x = number.Real.parse(x)
+        self.y = number.Real.parse(y)
+
+    def __repr__(self):
+        return f'{self.__class__.__module__}.{self.__class__.__qualname__}({self.x}, {self.y})'
+
+    def __str__(self):
+        return f'({self.x}, {self.y})'
+
+
+class Equation:
+    '''Conic general form equation.'''
+
+    COEFFICIENT_TO_VARIABLE = {
+        'a': 'x²',
+        'b': 'xy',
+        'c': 'y²',
+        'd': 'x',
+        'e': 'y',
+        'f': '',
+    }
+
+    def __init__(self, a, b, c, d, e, f):
+        self.a = number.Real.parse(a)
+        self.b = number.Real.parse(b)
+        self.c = number.Real.parse(c)
+        self.d = number.Real.parse(d)
+        self.e = number.Real.parse(e)
+        self.f = number.Real.parse(f)
+
+    def __repr__(self):
+        return (f'{self.__class__.__module__}.{self.__class__.__qualname__}' + 
+                f'({self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f})')
+
+    def __str__(self):
+        return ' + '.join([f'({value}){self.COEFFICIENT_TO_VARIABLE[coefficient]}'
+                            for coefficient, value in self.__dict__.items() if value != 0])
+
+
 class Conic:
     '''Conic representation.'''
 
@@ -162,44 +205,3 @@ class Conic:
                 self._name = 'parabola'
             else:
                 self._name = 'nothing'
-
-    class _Point:
-        '''2D point.'''
-
-        def __init__(self, x, y):
-            self.x = number.Real.parse(x)
-            self.y = number.Real.parse(y)
-
-        def __repr__(self):
-            return f'{self.__class__.__module__}.{self.__class__.__qualname__}({self.x}, {self.y})'
-
-        def __str__(self):
-            return f'({self.x}, {self.y})'
-
-    class _Equation:
-        '''Conic general form equation.'''
-
-        COEFFICIENT_TO_VARIABLE = {
-            'a': 'x²',
-            'b': 'xy',
-            'c': 'y²',
-            'd': 'x',
-            'e': 'y',
-            'f': '',
-        }
-
-        def __init__(self, a, b, c, d, e, f):
-            self.a = number.Real.parse(a)
-            self.b = number.Real.parse(b)
-            self.c = number.Real.parse(c)
-            self.d = number.Real.parse(d)
-            self.e = number.Real.parse(e)
-            self.f = number.Real.parse(f)
-
-        def __repr__(self):
-            return (f'{self.__class__.__module__}.{self.__class__.__qualname__}' + 
-                    f'({self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f})')
-
-        def __str__(self):
-            return ' + '.join([f'({value}){self.COEFFICIENT_TO_VARIABLE[coefficient]}'
-                               for coefficient, value in self.__dict__.items() if value != 0])
