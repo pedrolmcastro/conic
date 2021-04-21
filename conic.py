@@ -63,6 +63,16 @@ class Conic:
     def isvalid(self):
         return any([getattr(self._equation, coefficient) != 0 for coefficient in ['a', 'b', 'c']])
 
+    def identify(self):
+        if not self.isvalid():
+            raise ValueError(f'the conic equation {self._equation} is invalid')
+        self._findCenter()
+        if isinstance(self._center, self._Point) or self._center == math.inf:
+            self._translate()
+        if self._equation.b != 0:
+            self._rotate()
+        self._findName()
+
     def _findCenter(self):
         # ax + by/2 + d/2 = 0
         # bx/2 + cy + e/2 = 0
@@ -166,16 +176,6 @@ class Conic:
                 self._name = 'parabola'
             else:
                 self._name = 'nothing'
-
-    def identify(self):
-        if not self.isvalid():
-            raise ValueError(f'the conic equation {self._equation} is invalid')
-        self._findCenter()
-        if isinstance(self._center, self._Point) or self._center == math.inf:
-            self._translate()
-        if self._equation.b != 0:
-            self._rotate()
-        self._findName()
 
     class _Point:
         '''2D point.'''
