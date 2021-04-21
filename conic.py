@@ -170,9 +170,8 @@ class Conic:
                 self._name = 'nothing'
         # nothing or parabola
         elif self._center == None:
-            if self._equation.a != 0 and self._equation.e != 0:
-                self._name = 'parabola'
-            elif self._equation.c != 0 and self._equation.d != 0:
+            if ((self._equation.a != 0 and self._equation.e != 0) or
+                (self._equation.c != 0 and self._equation.d != 0)):
                 self._name = 'parabola'
             else:
                 self._name = 'nothing'
