@@ -5,7 +5,7 @@ class Real:
     '''Functions to get and parse finite floats.'''
 
     @staticmethod
-    def get(message=''):
+    def get(message: str = '') -> float:
         '''Require inputs until a finite float is given. Warnings are printed for each invalid input'''
         while True:
             input_string = input(message)
@@ -20,7 +20,7 @@ class Real:
                     print(f"input must be a finite float, not '{number}'. Try again!")
 
     @staticmethod
-    def parse(value):
+    def parse(value) -> float:
         '''Converts the given value to a finite float.'''
         number = float(value)
         if math.isfinite(number):

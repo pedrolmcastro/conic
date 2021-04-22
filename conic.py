@@ -1,5 +1,6 @@
 import math
 import copy
+from typing import Union, Tuple
 
 import number
 
@@ -7,14 +8,14 @@ import number
 class Point:
     '''2D point.'''
 
-    def __init__(self, x, y):
+    def __init__(self, x, y) -> None:
         self.x = number.Real.parse(x)
         self.y = number.Real.parse(y)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{self.__class__.__module__}.{self.__class__.__qualname__}({self.x}, {self.y})'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'({self.x}, {self.y})'
 
 
@@ -30,7 +31,7 @@ class Equation:
         'f': '',
     }
 
-    def __init__(self, a, b, c, d, e, f):
+    def __init__(self, a, b, c, d, e, f) -> None:
         self.a = number.Real.parse(a)
         self.b = number.Real.parse(b)
         self.c = number.Real.parse(c)
@@ -48,45 +49,39 @@ class Equation:
         f = number.Real.get('f: ')
         return cls(a, b, c, d, e, f)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (f'{self.__class__.__module__}.{self.__class__.__qualname__}' + 
                 f'({self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f})')
 
-    def __str__(self):
+    def __str__(self) -> str:
         return ' + '.join([f'({value}){self.COEFFICIENT_TO_VARIABLE[coefficient]}'
-                            for coefficient, value in self.__dict__.items() if value != 0])
+                           for coefficient, value in self.__dict__.items() if value != 0])
 
 
 class Conic:
     '''Conic functions.'''
 
     @staticmethod
-    def determinant(equation):
+    def determinant(equation: Equation) -> float:
         return equation.a * equation.c - equation.b ** 2 / 4
 
     @staticmethod
-    def isconic(equation):
+    def isconic(equation: Equation) -> bool:
         return any([getattr(equation, coefficient) != 0 for coefficient in ['a', 'b', 'c']])
 
     @classmethod
-    def identify(cls, equation):
+    def identify(cls, equation: Equation) -> Tuple[str, Union[Point, float, None], float, Equation, Equation]:
         if not cls.isconic(equation):
             raise ValueError(f'the equation {equation} is not a conic')
         center = cls._get_center(equation, cls.determinant(equation))
-        if isinstance(center, Point) or center == math.inf:
-            translated_equation = cls._translate(equation, center)
-        else:
-            translated_equation = copy.deepcopy(equation)
+        translated_equation = cls._translate(equation, center)
         rotation_angle = cls._get_rotation_angle(equation)
-        if translated_equation.b != 0:
-            rotated_equation = cls._rotate(equation, rotation_angle)
-        else:
-            rotated_equation = copy.deepcopy(translated_equation)
+        rotated_equation = cls._rotate(equation, rotation_angle)
         name = cls._get_name(rotated_equation, center)
         return name, center, rotation_angle, translated_equation, rotated_equation
 
     @staticmethod
-    def _get_center(equation, determinant):
+    def _get_center(equation: Equation, determinant: float) -> Union[Point, float, None]:
         # ax + by/2 + d/2 = 0
         # bx/2 + cy + e/2 = 0
         # independent system
@@ -107,22 +102,24 @@ class Conic:
             return None
 
     @staticmethod
-    def _translate(equation, center):
+    def _translate(equation: Equation, center: Union[Point, float, None]) -> Equation:
         if isinstance(center, Point):
-            x = center.x
-            y = center.y
+            f = equation.f + (equation.d * center.x + equation.e * center.y) / 2
+            return Equation(equation.a, equation.b, equation.c, 0, 0, f)
         elif center == math.inf:
             if equation.a != 0:
                 x = - equation.d / (2 * equation.a)
-                y = 0
+                y = 0.0
             elif equation.c != 0:
-                x = 0
+                x = 0.0
                 y = - equation.e / (2 * equation.c)
-        f = equation.f + (equation.d * x + equation.e * y) / 2
-        return Equation(equation.a, equation.b, equation.c, 0, 0, f)
+            f = equation.f + (equation.d * x + equation.e * y) / 2
+            return Equation(equation.a, equation.b, equation.c, 0, 0, f)
+        else:
+            return copy.deepcopy(equation)
 
     @staticmethod
-    def _get_rotation_angle(equation):
+    def _get_rotation_angle(equation: Equation) -> float:
         # cot(2θ) = (a-c)/b
         if equation.b == 0:
             return 0.0
@@ -132,7 +129,7 @@ class Conic:
             return math.atan2(equation.b, equation.a - equation.c) / 2
 
     @staticmethod
-    def _rotate(equation, rotation_angle):
+    def _rotate(equation: Equation, rotation_angle: float) -> Equation:
         if equation.b != 0:
             # a' + c' = a + c
             # a' - c' = b√1+((a-c)/b)²
@@ -143,9 +140,11 @@ class Conic:
             d = equation.d * math.cos(rotation_angle) + equation.e * math.sin(rotation_angle)
             e = - equation.d * math.sin(rotation_angle) + equation.e * math.cos(rotation_angle)
             return Equation(a, 0, c, d, e, equation.f)
+        else:
+            return copy.deepcopy(equation)
 
     @staticmethod
-    def _get_name(equation, center):
+    def _get_name(equation: Equation, center: Union[Point, float, None]) -> str:
         if isinstance(center, Point):
             if equation.f == 0:
                 # ax² + cy² = 0
@@ -178,3 +177,5 @@ class Conic:
                 return 'parabola'
             else:
                 return 'nothing'
+        else:
+            return 'unknown'
