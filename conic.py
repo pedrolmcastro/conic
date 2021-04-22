@@ -60,12 +60,13 @@ class Equation:
 class Conic:
     '''Conic functions.'''
 
-    @property
-    def determinant(self):
-        return self._equation.a * self._equation.c - self._equation.b ** 2 / 4
+    @staticmethod
+    def determinant(equation):
+        return equation.a * equation.c - equation.b ** 2 / 4
 
-    def isvalid(self):
-        return any([getattr(self._equation, coefficient) != 0 for coefficient in ['a', 'b', 'c']])
+    @staticmethod
+    def isconic(equation):
+        return any([getattr(equation, coefficient) != 0 for coefficient in ['a', 'b', 'c']])
 
     def identify(self):
         if not self.isvalid():
@@ -77,101 +78,96 @@ class Conic:
             self._rotate()
         self._findName()
 
-    def _findCenter(self):
+    @staticmethod
+    def _get_center(equation, determinant):
         # ax + by/2 + d/2 = 0
         # bx/2 + cy + e/2 = 0
         # independent system
-        if self.determinant != 0:
-            if self._equation.a == 0:
-                y = - self._equation.d / self._equation.b
-                x = - (2 * self._equation.c * y + self._equation.e) / self._equation.b
+        if determinant != 0:
+            if equation.a == 0:
+                y = - equation.d / equation.b
+                x = - (2 * equation.c * y + equation.e) / equation.b
             else:
-                y = (self._equation.b * self._equation.d - 2 * self._equation.a * self._equation.e) / (4 * self.determinant)
-                x = - (self._equation.b * y + self._equation.d) / (2 * self._equation.a)
-            self._center = self._Point(x, y)
+                y = (equation.b * equation.d - 2 * equation.a * equation.e) / (4 * determinant)
+                x = - (equation.b * y + equation.d) / (2 * equation.a)
+            return Point(x, y)
         # dependent system
-        elif ((self._equation.a != 0 and
-               math.isclose(self._equation.e, (self._equation.b * self._equation.d) / (2 * self._equation.a))) or
-              (self._equation.c != 0 and
-               math.isclose(self._equation.d, (self._equation.b * self._equation.e) / (2 * self._equation.c)))):
-            self._center = math.inf
+        elif ((equation.a != 0 and math.isclose(equation.e, (equation.b * equation.d) / (2 * equation.a))) or
+              (equation.c != 0 and math.isclose(equation.d, (equation.b * equation.e) / (2 * equation.c)))):
+            return math.inf
         # inconsistent system
         else:
-            self._center = None
+            return None
 
-    def _translate(self):
-        if isinstance(self._center, self._Point):
-            self._equation.f += (self._equation.d * self._center.x + self._equation.e * self._center.y) / 2
-            self._equation.d = 0
-            self._equation.e = 0
-        elif self._center == math.inf:
-            if self._equation.a != 0:
-                x = - self._equation.d / (2 * self._equation.a)
+    @staticmethod
+    def _translate(equation, center):
+        if isinstance(center, Point):
+            x = center.x
+            y = center.y
+        elif center == math.inf:
+            if equation.a != 0:
+                x = - equation.d / (2 * equation.a)
                 y = 0
-            else:  # c != 0
+            elif equation.c != 0:
                 x = 0
-                y = - self._equation.e / (2 * self._equation.c)
-            self._equation.f += (self._equation.d * x + self._equation.e * y) / 2
-            self._equation.d = 0
-            self._equation.e = 0
+                y = - equation.e / (2 * equation.c)
+        f = equation.f + (equation.d * x + equation.e * y) / 2
+        return Equation(equation.a, equation.b, equation.c, 0, 0, f)
 
-    def _findRotationAngle(self):
+    @staticmethod
+    def _get_rotation_angle(equation):
         # cot(2θ) = (a-c)/b
-        if self._equation.b == 0:
-            self._angle = 0
-        elif self._equation.a - self._equation.c == 0:
-            self._angle = math.pi / 4
+        if equation.b == 0:
+            return 0.0
+        elif equation.a - equation.c == 0:
+            return math.pi / 4
         else:
-            self._angle = math.atan2(self._equation.b, self._equation.a - self._equation.c) / 2
+            return math.atan2(equation.b, equation.a - equation.c) / 2
 
-    def _rotate(self):
-        if self._equation.b != 0:
-            self._findRotationAngle()
-            # d' = dcos(θ) + esin(θ)
-            # e' = -dsin(θ) + ecos(θ)
-            d = self._equation.d
-            e = self._equation.e
-            self._equation.d = d * math.cos(self._angle) + e * math.sin(self._angle)
-            self._equation.e = - d * math.sin(self._angle) + e * math.cos(self._angle)
+    @staticmethod
+    def _rotate(equation, rotation_angle):
+        if equation.b != 0:
             # a' + c' = a + c
             # a' - c' = b√1+((a-c)/b)²
-            a = self._equation.a
-            c = self._equation.c
-            self._equation.a = (a + c + self._equation.b * math.sqrt(1 + ((a - c) / self._equation.b) ** 2)) / 2
-            self._equation.c = a + c - self._equation.a
-            self._equation.b = 0
+            a = (equation.a + equation.c + equation.b * math.sqrt(1 + ((equation.a - equation.c) / equation.b) ** 2)) / 2
+            c = equation.a + equation.c - a
+            # d' = dcos(θ) + esin(θ)
+            # e' = -dsin(θ) + ecos(θ)
+            d = equation.d * math.cos(rotation_angle) + equation.e * math.sin(rotation_angle)
+            e = - equation.d * math.sin(rotation_angle) + equation.e * math.cos(rotation_angle)
+            return Equation(a, 0, c, d, e, equation.f)
 
-    def _findName(self):
-        if isinstance(self._center, self._Point):
-            if self._equation.f == 0:
+    @staticmethod
+    def _get_name(equation, center):
+        if isinstance(center, Point):
+            if equation.f == 0:
                 # ax² + cy² = 0
-                if self._equation.a * self._equation.c < 0:
-                    self._name = 'intersecting lines'
+                if equation.a * equation.c < 0:
+                    return 'intersecting lines'
                 else:
-                    self._name = 'point'
+                    return 'point'
             else:
-                A = - self._equation.a / self._equation.f
-                C = - self._equation.c / self._equation.f
+                A = - equation.a / equation.f
+                C = - equation.c / equation.f
                 # Ax² + Cy² = 1
                 if A * C < 0:
-                    self._name = 'hyperbola'
+                    return 'hyperbola'
                 elif A < 0 and C < 0:
-                    self._name = 'nothing'
+                    return 'nothing'
                 elif A == C:
-                    self._name = 'circle'
+                    return 'circle'
                 else:
-                    self._name = 'ellipse'
-        elif self._center == math.inf:
+                    return 'ellipse'
+        elif center == math.inf:
             # ax² + f = 0 or cy² + f = 0
-            if self._equation.f == 0:
-                self._name = 'coincident lines'
-            elif self._equation.a * self._equation.f < 0 or self._equation.c * self._equation.f < 0:
-                self._name = 'parallel lines'
+            if equation.f == 0:
+                return 'coincident lines'
+            elif equation.a * equation.f < 0 or equation.c * equation.f < 0:
+                return 'parallel lines'
             else:
-                self._name = 'nothing'
-        elif self._center == None:
-            if ((self._equation.a != 0 and self._equation.e != 0) or
-                (self._equation.c != 0 and self._equation.d != 0)):
-                self._name = 'parabola'
+                return 'nothing'
+        elif center == None:
+            if (equation.a != 0 and equation.e != 0) or (equation.c != 0 and equation.d != 0):
+                return 'parabola'
             else:
-                self._name = 'nothing'
+                return 'nothing'
