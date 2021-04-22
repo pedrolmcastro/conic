@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import math
 import copy
-from typing import Union, Tuple
+from typing import Union, NamedTuple
 
 import number
 
@@ -58,8 +60,13 @@ class Equation:
                            for coefficient, value in self.__dict__.items() if value != 0])
 
 
-class Conic:
-    '''Conic functions.'''
+class Conic(NamedTuple):
+    '''Conic data and functions.'''
+    name: str
+    center: Union[Point, float, None]
+    rotation_angle: float
+    translated_equation: Equation
+    rotated_equation: Equation
 
     @staticmethod
     def determinant(equation: Equation) -> float:
@@ -70,7 +77,7 @@ class Conic:
         return any([getattr(equation, coefficient) != 0 for coefficient in ['a', 'b', 'c']])
 
     @classmethod
-    def identify(cls, equation: Equation) -> Tuple[str, Union[Point, float, None], float, Equation, Equation]:
+    def identify(cls, equation: Equation) -> Conic:
         if not cls.isconic(equation):
             raise ValueError(f'the equation {equation} is not a conic')
         center = cls._get_center(equation, cls.determinant(equation))
@@ -78,7 +85,7 @@ class Conic:
         rotation_angle = cls._get_rotation_angle(equation)
         rotated_equation = cls._rotate(equation, rotation_angle)
         name = cls._get_name(rotated_equation, center)
-        return name, center, rotation_angle, translated_equation, rotated_equation
+        return cls(name, center, rotation_angle, translated_equation, rotated_equation)
 
     @staticmethod
     def _get_center(equation: Equation, determinant: float) -> Union[Point, float, None]:
