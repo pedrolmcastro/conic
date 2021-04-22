@@ -10,13 +10,12 @@ import conic
 # equation = conic.Equation(0, 0, 1, 0, 0, -1)     # parallel lines
 # equation = conic.Equation(1, 0, 0, 0, 0, 0)      # coincident lines
 # equation = conic.Equation(1, 0, -1, 0, 0, 0)     # intersecting lines
-equation = conic.Equation.from_input()
+equation = conic.Equation.frominput()
 
-determinant = conic.Conic.determinant(equation)
-center = conic.Conic._get_center(equation, determinant)
-if not center is None:
-    equation = conic.Conic._translate(equation, center)
-rotation_angle = conic.Conic._get_rotation_angle(equation)
-if equation.b != 0:
-    equation = conic.Conic._rotate(equation, rotation_angle)
-print(conic.Conic._get_name(equation, center))
+name, center, rotation_angle, translated_equation, rotated_equation = conic.Conic.identify(equation)
+
+print(name)
+print(center)
+print(rotation_angle)
+print(translated_equation)
+print(rotated_equation)

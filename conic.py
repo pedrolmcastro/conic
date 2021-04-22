@@ -68,15 +68,22 @@ class Conic:
     def isconic(equation):
         return any([getattr(equation, coefficient) != 0 for coefficient in ['a', 'b', 'c']])
 
-    def identify(self):
-        if not self.isvalid():
-            raise ValueError(f'the conic equation {self._equation} is invalid')
-        self._findCenter()
-        if isinstance(self._center, self._Point) or self._center == math.inf:
-            self._translate()
-        if self._equation.b != 0:
-            self._rotate()
-        self._findName()
+    @classmethod
+    def identify(cls, equation):
+        if not cls.isconic(equation):
+            raise ValueError(f'the equation {equation} is not a conic')
+        center = cls._get_center(equation, cls.determinant(equation))
+        if isinstance(center, Point) or center == math.inf:
+            translated_equation = cls._translate(equation, center)
+        else:
+            translated_equation = copy.deepcopy(equation)
+        rotation_angle = cls._get_rotation_angle(equation)
+        if translated_equation.b != 0:
+            rotated_equation = cls._rotate(equation, rotation_angle)
+        else:
+            rotated_equation = copy.deepcopy(translated_equation)
+        name = cls._get_name(rotated_equation, center)
+        return name, center, rotation_angle, translated_equation, rotated_equation
 
     @staticmethod
     def _get_center(equation, determinant):
