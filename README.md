@@ -1,19 +1,52 @@
 # Conic
 
-## Overview
-
-A python application that identifies a conic given its general form equation. All codes are under the [MIT license](https://en.wikipedia.org/wiki/MIT_License).
+A simple program to classify a conic and gather some information about it given its general equation form **ax<sup>2</sup> + bxy + cy<sup>2</sup> + dx + ey + f** with **a**, **b**, and **c** not all equal to zero.
 
 ## Usage
 
-Executing `main.py`, the user needs to insert a conic equation in the form:
+Instantiating a Conic object will do all the calculations required and printing it will display its information table.
 
-Ax<sup>2</sup> + Bxy + Cy<sup>2</sup> + Dx + Ey + F
-
-with A, B and C **not all** equal to 0.
-
-The program will then print the conic identified and some of its information.
-
-## Observation
-
-This application was developed by a Computer Science student for academic and learning purposes, because of that the code may not be the safest or most efficient one.
+<table>
+    <thead>
+        <tr>
+            <th colspan = "2"> Attribute </th>
+            <th> Description </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td colspan = "2"> name </td>
+            <td> Conic classification </td>
+        </tr>
+        <tr>
+            <td rowspan = "3"> center </td>
+            <td> <code> tuple </code> </td>
+            <td> Center coordinates in the initial equation </td>
+        </tr>
+        <tr>
+            <td> <code> inf </code> </td>
+            <td> Infinite centers </td>
+        </tr>
+        <tr>
+            <td> <code> None </code> </td>
+            <td> No center </td>
+        </tr>
+        <tr>
+            <td colspan = "2"> angle </td>
+            <td> Angle used in the rotation </td>
+        </tr>
+        <tr>
+            <td rowspan = "3"> equations </td>
+            <td> <code> [0] </code> </td>
+            <td> Initial equation </td>
+        </tr>
+        <tr>
+            <td> <code> [1] </code> </td>
+            <td> Equation after translation </td>
+        </tr>
+        <tr>
+            <td> <code> [2] </code> </td>
+            <td> Equation after rotation </td>
+        </tr>
+    </tbody>
+</table>
