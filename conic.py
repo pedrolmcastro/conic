@@ -1,205 +1,151 @@
 import math
-import copy
-
-import number
+import typing
 
 
 class Conic:
-    '''Conic representation.'''
+    """Conic of equation ax² + bxy + cy² + dx + ey + f = 0"""
 
-    def __init__(self, a, b, c, d, e, f):
-        self._equation = self._Equation(a, b, c, d, e, f)
-        self._center = 'unknown'
-        self._name = 'unknown'
-        self._angle = 0
+    def __init__(self, a: float, b: float, c: float, d: float, e: float, f:float) -> None:
+        # Validate
+        self.equations = [self._equation(a, b, c, d, e, f)]
 
-    @classmethod
-    def frominput(cls):
-        a = number.Real.get('a: ')
-        b = number.Real.get('b: ')
-        c = number.Real.get('c: ')
-        d = number.Real.get('d: ')
-        e = number.Real.get('e: ')
-        f = number.Real.get('f: ')
-        return cls(a, b, c, d, e, f)
+        # Translate
+        self.center = self._center(self.equations[0])
+        self.equations.append(self._translate(self.equations[0], self.center))
 
-    def __repr__(self):
-        return (f'{self.__class__.__module__}.{self.__class__.__qualname__}' +
-                f'({self._equation.a}, {self._equation.b}, {self._equation.c}, ' +
-                f'{self._equation.d}, {self._equation.e}, {self._equation.f})')
+        # Rotate
+        self.angle = self._angle(self.equations[1])
+        self.equations.append(self._rotate(self.equations[1], self.angle))
 
+        # Classify
+        self.name = self._name(self.equations[2], self.center)
+    
     def __str__(self):
-        return self._name
+        return (
+            f"Name:                {self.name}        \n"
+            f"Center:              {self.center}      \n"
+            f"Rotation Angle:      {self.angle}       \n"
+            f"Initial Equation:    {self.equations[0]}\n"
+            f"Translated Equation: {self.equations[1]}\n"
+            f"Rotated Equation:    {self.equations[2]}"
+        )
+    
+    @staticmethod
+    def _determinant(equation: dict[str, float]) -> float:
+        # | a   b/2 | = ac - b²/4
+        # | b/2 c   |
+        return equation['a'] * equation['c'] - equation['b'] ** 2 / 4
 
-    @property
-    def equation(self):
-        return copy.deepcopy(self._equation)
-
-    @property
-    def center(self):
-        return copy.deepcopy(self._center)
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def angle(self):
-        return self._angle
-
-    @property
-    def determinant(self):
-        return self._equation.a * self._equation.c - self._equation.b ** 2 / 4
-
-    def isvalid(self):
-        return any([getattr(self._equation, coefficient) != 0 for coefficient in ['a', 'b', 'c']])
-
-    def identify(self):
-        if not self.isvalid():
-            raise ValueError(f'the conic equation {self._equation} is invalid')
-        self._findCenter()
-        if isinstance(self._center, self._Point) or self._center == math.inf:
-            self._translate()
-        if self._equation.b != 0:
-            self._rotate()
-        self._findName()
-
-    def _findCenter(self):
+    @staticmethod
+    def _equation(a: float, b: float, c: float, d: float, e: float, f:float) -> dict[str, float]:
+        equation = locals().copy()
+        
+        if not all(type(coefficient) in (int, float) and math.isfinite(coefficient) for coefficient in equation.values()):
+            raise TypeError("All coefficients must be finite integers or floats")
+        elif not any(equation[coefficient] != 0 for coefficient in ['a', 'b', 'c']):
+            raise ValueError("Coefficients 'a', 'b' and 'c' can not all be 0")
+        
+        return equation
+    
+    @classmethod
+    def _center(cls, equation: dict[str, float]) -> tuple[float, float] | float | None:
         # ax + by/2 + d/2 = 0
         # bx/2 + cy + e/2 = 0
-        # independent system
-        if self.determinant != 0:
-            if self._equation.a == 0:
-                y = - self._equation.d / self._equation.b
-                x = - (2 * self._equation.c * y + self._equation.e) / self._equation.b
+        determinant = cls._determinant(equation)
+                
+        # Independent system
+        if determinant != 0:
+            if equation['a'] == 0:
+                y = - equation['d'] / equation['b']
+                x = - (2 * equation['c'] * y + equation['e']) / equation['b']
             else:
-                y = (self._equation.b * self._equation.d - 2 * self._equation.a * self._equation.e) / (4 * self.determinant)
-                x = - (self._equation.b * y + self._equation.d) / (2 * self._equation.a)
-            self._center = self._Point(x, y)
-        # dependent system
-        elif ((self._equation.a != 0 and
-               math.isclose(self._equation.e, (self._equation.b * self._equation.d) / (2 * self._equation.a))) or
-              (self._equation.c != 0 and
-               math.isclose(self._equation.d, (self._equation.b * self._equation.e) / (2 * self._equation.c)))):
-            self._center = math.inf
-        # inconsistent system
-        else:
-            self._center = None
+                y = (equation['b'] * equation['d'] - 2 * equation['a'] * equation['e']) / (4 * determinant)
+                x = - (equation['b'] * y + equation['d']) / (2 * equation['a'])
+            return x, y
+        
+        # Dependent system
+        if (equation['a'] != 0 and math.isclose(equation['e'], equation['b'] * equation['d'] / (2 * equation['a'])) or
+            equation['c'] != 0 and math.isclose(equation['d'], equation['b'] * equation['e'] / (2 * equation['c']))):
+            return math.inf
+        
+        # Inconsistent system
+        return None
+    
+    @staticmethod
+    def _translate(equation: dict[str, float], center: tuple[float, float] | float | None) -> dict[str, float]:
+        translated = equation.copy()
 
-    def _translate(self):
-        if isinstance(self._center, self._Point):
-            self._equation.f += (self._equation.d * self._center.x + self._equation.e * self._center.y) / 2
-            self._equation.d = 0
-            self._equation.e = 0
-        elif self._center == math.inf:
-            if self._equation.a != 0:
-                x = - self._equation.d / (2 * self._equation.a)
-                y = 0
-            else:  # c != 0
-                x = 0
-                y = - self._equation.e / (2 * self._equation.c)
-            self._equation.f += (self._equation.d * x + self._equation.e * y) / 2
-            self._equation.d = 0
-            self._equation.e = 0
+        # Unique center
+        if type(center) is tuple:
+            center = typing.cast(tuple[float, float], center)
+            translated['f'] += (equation['d'] * center[0] + equation['e'] * center[1]) / 2
+            translated['d'] = translated['e'] = 0
+        
+        # Infinite centers
+        elif center == math.inf:
+            if equation['a'] != 0:
+                x = - equation['d'] / (2 * equation['a'])
+                y = 0.
+            else:
+                x = 0.
+                y = - equation['e'] / (2 * equation['c'])
+            translated['f'] += (equation['d'] * x + equation['e'] * y) / 2
+            translated['d'] = translated['e'] = 0
+        
+        return translated
+    
+    @staticmethod
+    def _angle(equation: dict[str, float]) -> float:
+        # cot(2θ) = (a - c)/b
+        if equation['b'] == 0:
+            return 0
+        elif equation['a'] - equation['c'] == 0:
+            return math.pi / 4
+        return math.atan2(equation['b'], equation['a'] - equation['c']) / 2
+    
+    @staticmethod
+    def _rotate(translated: dict[str, float], angle: float) -> dict[str, float]:
+        rotated = translated.copy()
 
-    def _findRotationAngle(self):
-        # cot(2θ) = (a-c)/b
-        if self._equation.b == 0:
-            self._angle = 0
-        elif self._equation.a - self._equation.c == 0:
-            self._angle = math.pi / 4
-        else:
-            self._angle = math.atan2(self._equation.b, self._equation.a - self._equation.c) / 2
-
-    def _rotate(self):
-        if self._equation.b != 0:
-            self._findRotationAngle()
-            # d' = dcos(θ) + esin(θ)
-            # e' = -dsin(θ) + ecos(θ)
-            d = self._equation.d
-            e = self._equation.e
-            self._equation.d = d * math.cos(self._angle) + e * math.sin(self._angle)
-            self._equation.e = - d * math.sin(self._angle) + e * math.cos(self._angle)
+        if translated['b'] != 0:
+            rotated['b'] = 0
             # a' + c' = a + c
-            # a' - c' = b√1+((a-c)/b)²
-            a = self._equation.a
-            c = self._equation.c
-            self._equation.a = (a + c + self._equation.b * math.sqrt(1 + ((a - c) / self._equation.b) ** 2)) / 2
-            self._equation.c = a + c - self._equation.a
-            self._equation.b = 0
-
-    def _findName(self):
-        if isinstance(self._center, self._Point):
-            if self._equation.f == 0:
+            # a' - c' = b √1 + ((a - c)/b)²
+            rotated['a'] = (translated['a'] + translated['c'] + translated['b'] * math.sqrt(1 + ((translated['a'] - translated['c']) / translated['b']) ** 2)) / 2
+            rotated['c'] = translated['a'] + translated['c'] - rotated['a']
+            # d' = d cos(θ) + e sin(θ)
+            # e' = - d sin(θ) + e cos(θ)
+            rotated['d'] = translated['d'] * math.cos(angle) + translated['e'] * math.sin(angle)
+            rotated['e'] = - translated['d'] * math.sin(angle) + translated['e'] * math.cos(angle)
+        
+        return rotated
+    
+    @staticmethod
+    def _name(rotated: dict[str, float], center: tuple[float, float] | float | None) -> str:
+        # Unique center
+        if type(center) is tuple:
+            if rotated['f'] == 0:
                 # ax² + cy² = 0
-                if self._equation.a * self._equation.c < 0:
-                    self._name = 'intersecting lines'
-                else:
-                    self._name = 'point'
-            else:
-                A = - self._equation.a / self._equation.f
-                C = - self._equation.c / self._equation.f
-                # Ax² + Cy² = 1
-                if A * C < 0:
-                    self._name = 'hyperbola'
-                elif A < 0 and C < 0:
-                    self._name = 'nothing'
-                elif A == C:
-                    self._name = 'circle'
-                else:
-                    self._name = 'ellipse'
-        elif self._center == math.inf:
+                return "Intersecting lines" if rotated['a'] * rotated['c'] < 0 else "Point"
+            # ax²/f + cy²/f = Ax² + Cy² = 1
+            A = - rotated['a'] / rotated['f']
+            C = - rotated['c'] / rotated['f']
+            if A < 0 and C < 0:
+                return "Nothing"
+            if A * C < 0:
+                return "Hyperbola"
+            if A == C:
+                return "Circle"
+            return "Ellipse"
+        
+        # Infinite centers
+        if center == math.inf:
             # ax² + f = 0 or cy² + f = 0
-            if self._equation.f == 0:
-                self._name = 'coincident lines'
-            elif self._equation.a * self._equation.f < 0 or self._equation.c * self._equation.f < 0:
-                self._name = 'parallel lines'
-            else:
-                self._name = 'nothing'
-        elif self._center == None:
-            if ((self._equation.a != 0 and self._equation.e != 0) or
-                (self._equation.c != 0 and self._equation.d != 0)):
-                self._name = 'parabola'
-            else:
-                self._name = 'nothing'
-
-    class _Point:
-        '''2D point.'''
-
-        def __init__(self, x, y):
-            self.x = number.Real.parse(x)
-            self.y = number.Real.parse(y)
-
-        def __repr__(self):
-            return f'{self.__class__.__module__}.{self.__class__.__qualname__}({self.x}, {self.y})'
-
-        def __str__(self):
-            return f'({self.x}, {self.y})'
-
-    class _Equation:
-        '''Conic general form equation.'''
-
-        COEFFICIENT_TO_VARIABLE = {
-            'a': 'x²',
-            'b': 'xy',
-            'c': 'y²',
-            'd': 'x',
-            'e': 'y',
-            'f': '',
-        }
-
-        def __init__(self, a, b, c, d, e, f):
-            self.a = number.Real.parse(a)
-            self.b = number.Real.parse(b)
-            self.c = number.Real.parse(c)
-            self.d = number.Real.parse(d)
-            self.e = number.Real.parse(e)
-            self.f = number.Real.parse(f)
-
-        def __repr__(self):
-            return (f'{self.__class__.__module__}.{self.__class__.__qualname__}' + 
-                    f'({self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f})')
-
-        def __str__(self):
-            return ' + '.join([f'({value}){self.COEFFICIENT_TO_VARIABLE[coefficient]}'
-                               for coefficient, value in self.__dict__.items() if value != 0])
+            if rotated['f'] == 0:
+                return "Coincident lines"
+            if rotated['a'] * rotated['f'] < 0 or rotated['c'] * rotated['f'] < 0:
+                return "Parallel lines"
+            return "Nothing"
+        
+        # No center
+        return "Parabola" if rotated['a'] != 0 and rotated['e'] != 0 or rotated['c'] != 0 and rotated['d'] != 0 else "Nothing"
